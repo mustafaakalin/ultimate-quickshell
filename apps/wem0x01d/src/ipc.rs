@@ -1,4 +1,6 @@
 use std::{path::{Path, PathBuf}, sync::Arc};
+#[cfg(unix)]
+use std::os::unix::fs::MetadataExt;
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     net::{UnixListener, UnixStream},
@@ -62,7 +64,7 @@ async fn handle_client(
     capabilities: Arc<CapabilityRegistry>,
 ) -> anyhow::Result<()> {
     let peer_uid = peer_uid(&stream)?;
-    let local_uid = unsafe { libc::getuid() };
+    let local_uid = std::fs::metadata("/proc/self")?.uid();
     if peer_uid != local_uid {
         anyhow::bail!("IPC peer UID {peer_uid} is not the daemon UID {local_uid}");
     }
