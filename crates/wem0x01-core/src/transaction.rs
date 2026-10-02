@@ -67,6 +67,7 @@ pub enum TransactionError {
 }
 
 #[derive(Default)]
+/// Coordinates capability-checked transactions and their bound checkpoints.
 pub struct TransactionEngine {
     transactions: BTreeMap<String, Transaction>,
     checkpoints: CheckpointStore,
