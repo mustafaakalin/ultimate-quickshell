@@ -35,7 +35,7 @@ pub use firewall::{ContextFirewall, ContextItem, SanitizedContext, TrustLabel};
 pub use gateway::{ToolCall, ToolError, ToolGateway, ToolHandler, ToolResult};
 pub use graph::{AssetKind, GovernanceGraph, GraphEdge, GraphNode, Relation};
 pub use mcp::{McpServerDescriptor, McpTransport};
-pub use memory::{MemoryEntry, MemoryKind, MemoryStore, MemoryTrust};
+pub use memory::{MemoryEntry, MemoryStore};
 pub use memory_repo::{MemoryRecord, MemoryRepository};
 pub use operation::{
     Idempotency, OperationEffect, OperationRegistry, OperationSpec, OperationSpecError,
