@@ -1,0 +1,43 @@
+name: One-time cargo check diagnostics
+
+on:
+  push:
+    branches: ["dev/v8"]
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    if: github.actor == 'mustafaakalin'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/v8
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.99.0
+          components: rustfmt, clippy
+      - name: Run cargo check
+        run: |
+          set +e
+          cargo check --workspace > /tmp/check.log 2>&1
+          status=$?
+          cat /tmp/check.log
+          echo "CHECK_STATUS=$status" >> "$GITHUB_ENV"
+          exit 0
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-check-diagnostics
+          path: /tmp/check.log
+      - name: Remove temporary workflow
+        run: |
+          git rm .github/workflows/check-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "ci: remove temporary cargo check workflow"
+          git push origin HEAD:dev/v8
