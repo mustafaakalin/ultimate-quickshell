@@ -1,57 +1,204 @@
-# Ultimate Quickshell v7 — Community Edition
+# lem0x01 — Linux Environment Manager
 
-A clean-room Hyprland desktop shell built around Quickshell 0.3.1+, with one shared visual system for Quickshell, Neovim, Kitty, Fuzzel and Zellij.
+**lem0x01** is a Rust-first, event-driven **Linux environment manager and Wayland session control plane**.
 
-## Highlights
-- Native Quickshell DesktopEntries launcher with ScriptModel filtering.
-- Native NetworkManager and BlueZ integrations.
-- Native StatusNotifier/SystemTray integration.
-- Native UPower, PipeWire, MPRIS and notifications.
-- Multi-monitor top bars and a Dynamic Island surface.
-- Shared palettes for Quickshell, Neovim, Kitty, Fuzzel and Zellij.
-- MIT licensed and contribution-friendly.
+It is not a Quickshell configuration and it is not a desktop shell. The project coordinates the pieces that make a modern Wayland desktop environment work together: compositor integration, user-session services, devices, media, policies, profiles, themes, lifecycle, automation and optional UI frontends.
 
-## Install
+Quickshell is currently one frontend. It is intentionally not the source of truth.
+
+## Architecture
+
+```
+                         lem0x01 frontends
+             ┌──────────────┬──────────────┬──────────────┐
+             │  Quickshell  │ Native Wayland│   CLI / TUI  │
+             └──────────────┴───────┬──────┴──────────────┘
+                                    │
+                             versioned protocol
+                                    │
+                    ┌───────────────▼────────────────┐
+                    │          lem0x01d               │
+                    │   Rust control plane / daemon   │
+                    │                                 │
+                    │ state graph • event bus         │
+                    │ capability negotiation           │
+                    │ policies • profiles • lifecycle │
+                    └───────────────┬────────────────┘
+                                    │
+             ┌──────────────────────┼──────────────────────┐
+             │                      │                      │
+       compositor adapters     Linux adapters          policies
+       Hyprland / Sway         D-Bus / systemd          rules
+       Niri / River            PipeWire / portals        profiles
+       Wayfire / ...            NM / BlueZ / UPower
+             │                      │
+             └──────────────┬───────┴──────────────┘
+                            │
+                     Linux / Wayland
+```
+
+The core is deliberately compositor-neutral. A Hyprland feature is represented as a capability, not as a global assumption. This makes the same environment model usable across multiple Wayland compositors.
+
+## Why Rust?
+
+The control plane is intended to be long-running, security-sensitive infrastructure.
+
+Rust gives us:
+- memory-safety without a garbage collector;
+- explicit ownership and predictable resource lifetimes;
+- strong types across IPC/config/state boundaries;
+- low overhead for an always-running user daemon;
+- excellent async and systems tooling;
+- a natural path to native Wayland clients through the Wayland/Smithay ecosystem.
+
+The project does **not** force every UI to be Rust. Frontends can use the best technology for their job.
+
+## Current components
+
+### Rust control plane
+- `lem0x01d` — user-session daemon.
+- `lem0x01ctl` — control CLI.
+- `lem0x01-core` — event bus and orchestration primitives.
+- `lem0x01-protocol` — stable, dependency-light protocol types.
+- `lem0x01-compositor` — compositor-neutral adapter boundary.
+- `lem0x01-platform` — Linux/D-Bus/session integration boundary.
+
+### Existing UI layer
+The existing Quickshell frontend provides:
+- dynamic top bar;
+- workspaces;
+- launcher;
+- control center;
+- notifications;
+- media controls;
+- system tray;
+- network, Bluetooth, audio and battery surfaces;
+- shared themes for Kitty, Fuzzel, Zellij and Neovim.
+
+These are being migrated from the old `ultimate-shell` identity into the lem0x01 frontend architecture.
+
+## Repository layout
+
+```
+apps/
+  lem0x01d/             # control-plane daemon
+  lem0x01ctl/           # CLI
+
+crates/
+  lem0x01-core/         # state/event orchestration
+  lem0x01-protocol/     # versioned public protocol types
+  lem0x01-platform/     # Linux session + system services
+  lem0x01-compositor/   # Wayland/compositor adapters
+
+quickshell/              # optional UI frontend
+hypr/                    # Hyprland integration
+kitty/ fuzzel/ nvim/     # developer environment integrations
+themes/                  # shared visual tokens
+config/                  # lem0x01 configuration
+systemd/                 # user services
+docs/                    # architecture and design docs
+scripts/                 # installation/migration helpers
+```
+
+## Design principles
+
+1. **Rust-first control plane**
+2. **Event-driven, not polling-driven**
+3. **Compositor-neutral capability model**
+4. **Least privilege by default**
+5. **No shell interpolation for controlled operations**
+6. **UI is replaceable**
+7. **State belongs to the daemon, not the frontend**
+8. **Crash isolation between components**
+9. **Atomic, versioned configuration**
+10. **Observable and diagnosable**
+11. **Performance is a feature**
+12. **Security boundaries are architectural, not cosmetic**
+
+## Planned subsystems
+
+- [x] Initial Rust workspace and daemon boundary
+- [x] Compositor abstraction
+- [x] Stable protocol crate
+- [x] User-systemd service definition
+- [x] Quickshell frontend foundation
+- [ ] Hyprland adapter with event-driven IPC
+- [ ] Sway adapter
+- [ ] Niri adapter
+- [ ] River adapter
+- [ ] Wayfire adapter
+- [ ] Generic Wayland capability discovery
+- [ ] Native D-Bus service adapters
+- [ ] PipeWire/MPRIS media service
+- [ ] NetworkManager/BlueZ/UPower service layer
+- [ ] Profiles and policy engine
+- [ ] Hotkey/action router
+- [ ] OSD and notification surfaces
+- [ ] Clipboard history
+- [ ] Lock/idle/session lifecycle
+- [ ] Screenshot/color-picker service
+- [ ] Wallpaper → Material/OKLCH theme engine
+- [ ] Native Rust Wayland surfaces
+- [ ] Plugin/extension ABI
+- [ ] Diagnostics and performance profiler
+- [ ] Signed release artifacts
+
+## Installation
+
+The current installer still installs the existing Quickshell frontend:
+
     ./scripts/install.sh
-Then add to Hyprland: source = ~/.config/hypr/ultimate-shell.conf
-Start with: qs -c ultimate-shell
+
+For the Rust control plane:
+
+    cargo build --release
+    install -Dm755 target/release/lem0x01d ~/.local/bin/lem0x01d
+    install -Dm755 target/release/lem0x01ctl ~/.local/bin/lem0x01ctl
+
+Then install the user service:
+
+    mkdir -p ~/.config/systemd/user
+    cp systemd/lem0x01.service ~/.config/systemd/user/
+    systemctl --user daemon-reload
+    systemctl --user enable --now lem0x01.service
+
+## Development
+
+    cargo fmt --all -- --check
+    cargo check --workspace
+    cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+The Quickshell frontend can be run separately while the Rust control plane evolves.
 
 ## Themes
+
     ~/.config/ultimate-shell/theme-sync caelestia
     ~/.config/ultimate-shell/theme-sync impasto
     ~/.config/ultimate-shell/theme-sync ultimate
 
-## Neovim
-    vim.o.termguicolors = true
-    vim.cmd.colorscheme('ultimate')
-Copy nvim/colors/ultimate.lua into ~/.config/nvim/colors/.
+Caelestia and Impasto are visual references only. lem0x01 is a clean-room implementation and does not copy their source code.
 
-## IPC
-    qs ipc call ultimate launcher
-    qs ipc call ultimate notifications
-    qs ipc call ultimate control
-    qs ipc call ultimate media
-    qs ipc call ultimate close
-    qs ipc call ultimate reloadShell
+## Security model
 
-## Community
-This is a public open-source project. Use issues and pull requests for bugs, features, documentation and design improvements. See CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md and GOVERNANCE.md.
+lem0x01 is designed to run as a **user service**, not as root.
 
-## Design
-Caelestia and Impasto are visual references only. This project is a clean-room implementation and does not copy their source code.
+The architecture favors:
+- explicit capability grants;
+- structured process spawning;
+- fail-closed policy decisions;
+- isolated adapters;
+- minimal filesystem access;
+- no ambient privilege escalation;
+- auditable IPC boundaries.
 
-## Roadmap
-- [x] Hyprland / MPRIS / PipeWire / UPower
-- [x] NetworkManager / Bluetooth / SystemTray
-- [x] Native application launcher
-- [x] Shared cross-application themes
-- [ ] CAVA spectrum visualizer
-- [ ] Wallpaper-driven Material/OKLCH palette generation
-- [ ] OSD
-- [ ] Clipboard history
-- [ ] Lock screen / idle management
-- [ ] Screenshot and color-picker surfaces
-- [ ] Calendar and system monitor
-- [ ] More community themes
+See `SECURITY.md` and `docs/architecture.md`.
 
-Quickshell provides native DesktopEntries, Networking, Bluetooth and SystemTray APIs used by this project.
+## Project identity
+
+The project is evolving from its original Quickshell prototype into a broader Linux environment manager. During the v8 migration, legacy paths such as `ultimate-shell` remain temporarily for compatibility.
+
+The target project name is:
+
+**lem0x01 — Linux Environment Manager**
+
+See `docs/architecture.md` for the long-term architecture.
