@@ -8,7 +8,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
-use wem0x01_protocol::{Capability, Command, CompositorEvent, EnvironmentSnapshot};
+use wem0x01_protocol::{AgentIntent, Capability, Command, CompositorEvent, EnvironmentSnapshot, Incident, TransactionPlan};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct EnvironmentState {
@@ -25,6 +25,9 @@ pub enum EnvironmentEvent {
     Command(Command),
     Compositor(CompositorEvent),
     ComponentChanged { id: String },
+    Incident(Incident),
+    AgentIntent(AgentIntent),
+    TransactionPlanned(TransactionPlan),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -52,6 +55,46 @@ impl Principal {
 pub enum PolicyError {
     #[error("effect {effect:?} is not granted to {principal}")]
     Denied { principal: String, effect: Effect },
+    #[error("unknown capability: {capability}")]
+    UnknownCapability { capability: String },
+}
+
+
+#[derive(Debug, Clone)]
+pub struct CapabilityDescriptor {
+    pub id: String,
+    pub effect: Effect,
+}
+
+#[derive(Default)]
+pub struct CapabilityRegistry {
+    descriptors: std::collections::HashMap<String, CapabilityDescriptor>,
+}
+
+impl CapabilityRegistry {
+    pub fn register(&mut self, id: impl Into<String>, effect: Effect) {
+        let id = id.into();
+        self.descriptors.insert(
+            id.clone(),
+            CapabilityDescriptor { id, effect },
+        );
+    }
+
+    pub fn effect_for(&self, id: &str) -> Option<Effect> {
+        self.descriptors.get(id).map(|descriptor| descriptor.effect)
+    }
+
+    pub fn authorize(
+        &self,
+        policy: &PolicyEngine,
+        principal: &Principal,
+        capability: &str,
+    ) -> Result<(), PolicyError> {
+        let effect = self.effect_for(capability).ok_or_else(|| PolicyError::UnknownCapability {
+            capability: capability.to_owned(),
+        })?;
+        policy.authorize(principal, effect)
+    }
 }
 
 #[derive(Default)]
