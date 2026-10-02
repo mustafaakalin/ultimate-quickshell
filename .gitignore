@@ -1,0 +1,9 @@
+*.swp
+*.swo
+*~
+.DS_Store
+.idea/
+.vscode/
+.cache/
+result/
+node_modules/
