@@ -8,6 +8,11 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
+
+pub mod actor;
+pub mod journal;
+pub use actor::{Actor, ActorContext, RestartPolicy, Supervisor};
+pub use journal::{IncidentJournal, JournalEntry};
 use wem0x01_protocol::{AgentIntent, Capability, Command, CompositorEvent, EnvironmentSnapshot, Incident, TransactionPlan};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
