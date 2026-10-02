@@ -1,0 +1,34 @@
+name: One-time Rust formatting
+
+on:
+  push:
+    branches: ["dev/v8"]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor == 'mustafaakalin'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/v8
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.99.0
+          components: rustfmt
+      - run: cargo fmt --all
+      - name: Commit formatting changes
+        run: |
+          if git diff --quiet; then
+            echo "already formatted"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "ci: apply rustfmt"
+          git push origin HEAD:dev/v8
