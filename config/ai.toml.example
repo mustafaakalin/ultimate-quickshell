@@ -1,0 +1,23 @@
+[ai]
+enabled = true
+default_mode = "local"
+allow_cloud = false
+max_subagent_depth = 3
+max_tool_calls = 64
+max_wall_time_ms = 120000
+require_approval_for_mutations = true
+
+[memory]
+backend = "bounded"
+max_entries = 4096
+persist_sensitive = false
+default_ttl_ms = 86400000
+
+[mcp]
+enabled = true
+allow_external_network = false
+
+[governance]
+continuous_evaluation = true
+record_traces = true
+record_evidence = true
