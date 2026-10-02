@@ -1,11 +1,21 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+
 use crate::{CapabilityRegistry, Checkpoint, CheckpointStore, PolicyEngine, Principal};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TransactionState {
-    Draft, Validated, AwaitingApproval, Approved, Executing,
-    Verifying, Committed, RollingBack, RolledBack, Failed, Cancelled,
+    Draft,
+    Validated,
+    AwaitingApproval,
+    Approved,
+    Executing,
+    Verifying,
+    Committed,
+    RollingBack,
+    RolledBack,
+    Failed,
+    Cancelled,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -59,12 +69,17 @@ pub enum TransactionError {
 #[derive(Default)]
 pub struct TransactionEngine {
     transactions: BTreeMap<String, Transaction>,
+    checkpoints: CheckpointStore,
 }
 
 impl TransactionEngine {
-    pub fn insert(&mut self, tx: Transaction) { self.transactions.insert(tx.id.clone(), tx); }
+    pub fn insert(&mut self, tx: Transaction) {
+        self.transactions.insert(tx.id.clone(), tx);
+    }
 
-    pub fn get(&self, id: &str) -> Option<&Transaction> { self.transactions.get(id) }
+    pub fn get(&self, id: &str) -> Option<&Transaction> {
+        self.transactions.get(id)
+    }
 
     pub fn validate(
         &mut self,
@@ -73,11 +88,18 @@ impl TransactionEngine {
         policy: &PolicyEngine,
         capabilities: &CapabilityRegistry,
     ) -> Result<(), TransactionError> {
-        let tx = self.transactions.get_mut(id).ok_or_else(|| TransactionError::NotFound(id.into()))?;
-        if !matches!(tx.state, TransactionState::Draft) { return Err(TransactionError::InvalidState); }
+        let tx = self
+            .transactions
+            .get_mut(id)
+            .ok_or_else(|| TransactionError::NotFound(id.into()))?;
+
+        if !matches!(tx.state, TransactionState::Draft) {
+            return Err(TransactionError::InvalidState);
+        }
 
         for action in &tx.actions {
-            capabilities.authorize(policy, principal, &action.capability)
+            capabilities
+                .authorize(policy, principal, &action.capability)
                 .map_err(|_| TransactionError::CapabilityDenied(action.capability.clone()))?;
         }
 
@@ -90,46 +112,124 @@ impl TransactionEngine {
     }
 
     pub fn approve(&mut self, id: &str) -> Result<u64, TransactionError> {
-        let tx = self.transactions.get_mut(id).ok_or_else(|| TransactionError::NotFound(id.into()))?;
-        if !matches!(tx.state, TransactionState::AwaitingApproval) { return Err(TransactionError::InvalidState); }
+        let tx = self
+            .transactions
+            .get_mut(id)
+            .ok_or_else(|| TransactionError::NotFound(id.into()))?;
+
+        if !matches!(tx.state, TransactionState::AwaitingApproval) {
+            return Err(TransactionError::InvalidState);
+        }
+
         tx.approval_revision = tx.approval_revision.saturating_add(1);
         tx.state = TransactionState::Approved;
         Ok(tx.approval_revision)
     }
 
-    pub fn attach_checkpoint(&mut self, transaction_id: &str, checkpoint_id: impl Into<String>) -> Result<(), TransactionError> {
-        let tx = self.transactions.get_mut(transaction_id).ok_or_else(|| TransactionError::NotFound(transaction_id.into()))?;
+    pub fn checkpoint(&mut self, checkpoint: Checkpoint) -> Result<(), TransactionError> {
+        if !self.transactions.contains_key(&checkpoint.transaction_id) {
+            return Err(TransactionError::NotFound(checkpoint.transaction_id));
+        }
+
+        self.checkpoints
+            .insert(checkpoint)
+            .map_err(|_| TransactionError::InvalidState)
+    }
+
+    pub fn attach_checkpoint(
+        &mut self,
+        transaction_id: &str,
+        checkpoint_id: impl Into<String>,
+    ) -> Result<(), TransactionError> {
+        let tx = self
+            .transactions
+            .get_mut(transaction_id)
+            .ok_or_else(|| TransactionError::NotFound(transaction_id.into()))?;
+
         if tx.state != TransactionState::Approved {
             return Err(TransactionError::InvalidState);
         }
-        tx.checkpoint_id = Some(checkpoint_id.into());
+
+        let checkpoint_id = checkpoint_id.into();
+        if self.checkpoints.get(&checkpoint_id).is_none() {
+            return Err(TransactionError::InvalidState);
+        }
+
+        tx.checkpoint_id = Some(checkpoint_id);
         Ok(())
     }
 
+    pub fn checkpoint_id(&self, transaction_id: &str) -> Option<&str> {
+        self.transactions
+            .get(transaction_id)?
+            .checkpoint_id
+            .as_deref()
+    }
+
+    pub fn checkpoint_for(&self, transaction_id: &str) -> Option<&Checkpoint> {
+        self.checkpoints.find_by_transaction(transaction_id)
+    }
+
     pub fn begin(&mut self, id: &str) -> Result<(), TransactionError> {
-        let tx = self.transactions.get_mut(id).ok_or_else(|| TransactionError::NotFound(id.into()))?;
-        if !matches!(tx.state, TransactionState::Approved) { return Err(TransactionError::ApprovalRequired); }
+        let tx = self
+            .transactions
+            .get_mut(id)
+            .ok_or_else(|| TransactionError::NotFound(id.into()))?;
+
+        if !matches!(tx.state, TransactionState::Approved) {
+            return Err(TransactionError::ApprovalRequired);
+        }
+
+        if tx.checkpoint_id.is_none() {
+            return Err(TransactionError::InvalidState);
+        }
+
         tx.state = TransactionState::Executing;
         Ok(())
     }
 
     pub fn begin_verify(&mut self, id: &str) -> Result<(), TransactionError> {
-        let tx = self.transactions.get_mut(id).ok_or_else(|| TransactionError::NotFound(id.into()))?;
-        if !matches!(tx.state, TransactionState::Executing) { return Err(TransactionError::InvalidState); }
+        let tx = self
+            .transactions
+            .get_mut(id)
+            .ok_or_else(|| TransactionError::NotFound(id.into()))?;
+
+        if !matches!(tx.state, TransactionState::Executing) {
+            return Err(TransactionError::InvalidState);
+        }
+
         tx.state = TransactionState::Verifying;
         Ok(())
     }
 
     pub fn commit(&mut self, id: &str) -> Result<(), TransactionError> {
-        let tx = self.transactions.get_mut(id).ok_or_else(|| TransactionError::NotFound(id.into()))?;
-        if !matches!(tx.state, TransactionState::Verifying) { return Err(TransactionError::InvalidState); }
+        let tx = self
+            .transactions
+            .get_mut(id)
+            .ok_or_else(|| TransactionError::NotFound(id.into()))?;
+
+        if !matches!(tx.state, TransactionState::Verifying) {
+            return Err(TransactionError::InvalidState);
+        }
+
         tx.state = TransactionState::Committed;
         Ok(())
     }
 
     pub fn rollback(&mut self, id: &str) -> Result<(), TransactionError> {
-        let tx = self.transactions.get_mut(id).ok_or_else(|| TransactionError::NotFound(id.into()))?;
-        if !tx.actions.iter().all(|a| a.reversible) { return Err(TransactionError::NotReversible); }
+        let tx = self
+            .transactions
+            .get_mut(id)
+            .ok_or_else(|| TransactionError::NotFound(id.into()))?;
+
+        if !tx.actions.iter().all(|a| a.reversible) {
+            return Err(TransactionError::NotReversible);
+        }
+
+        if tx.checkpoint_id.is_none() {
+            return Err(TransactionError::InvalidState);
+        }
+
         tx.state = TransactionState::RollingBack;
         tx.state = TransactionState::RolledBack;
         Ok(())
