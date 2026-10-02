@@ -101,7 +101,9 @@ impl ExecutionBroker {
                 digest,
             );
             context.transactions.checkpoint(checkpoint)?;
-            context.transactions.attach_checkpoint(&tx.id, checkpoint_id)?;
+            context
+                .transactions
+                .attach_checkpoint(&tx.id, checkpoint_id)?;
         }
         context.transactions.begin(&tx.id)?;
 
