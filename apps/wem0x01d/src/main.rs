@@ -50,17 +50,18 @@ async fn main() -> anyhow::Result<()> {
     info!(compositor = %snapshot.compositor, generation = snapshot.generation, "wem0x01 control plane started");
 
     if snapshot.compositor.to_ascii_lowercase().contains("hypr")
-        && let Ok(events) = wem0x01_compositor::hyprland::HyprlandEvents::from_environment() {
-            let tx = bus;
-            tokio::spawn(async move {
-                if let Err(error) = events
-                    .run(|event| tx.publish(EnvironmentEvent::Compositor(event)))
-                    .await
-                {
-                    error!(%error, "Hyprland event actor stopped");
-                }
-            });
-        }
+        && let Ok(events) = wem0x01_compositor::hyprland::HyprlandEvents::from_environment()
+    {
+        let tx = bus;
+        tokio::spawn(async move {
+            if let Err(error) = events
+                .run(|event| tx.publish(EnvironmentEvent::Compositor(event)))
+                .await
+            {
+                error!(%error, "Hyprland event actor stopped");
+            }
+        });
+    }
 
     let runtime_dir = std::env::var_os("XDG_RUNTIME_DIR")
         .map(std::path::PathBuf::from)
