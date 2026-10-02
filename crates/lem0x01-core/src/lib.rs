@@ -4,13 +4,14 @@
 //! GTK or a particular service manager. Platform adapters implement those edges.
 
 use async_trait::async_trait;
-use lem0x01_protocol::{Command, EnvironmentSnapshot};
+use lem0x01_protocol::{Command, CompositorEvent, EnvironmentSnapshot};
 use tokio::sync::broadcast;
 
 #[derive(Debug, Clone)]
 pub enum EnvironmentEvent {
     Snapshot(EnvironmentSnapshot),
     Command(Command),
+    Compositor(CompositorEvent),
     ComponentChanged { id: String },
 }
 
