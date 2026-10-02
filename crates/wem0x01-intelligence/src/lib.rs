@@ -30,7 +30,7 @@ pub mod trace;
 pub use agent::{AgentBudget, AgentDescriptor, AgentKind, AgentRole, AgentRuntime};
 pub use compositor_adapter::{CompositorAdapter, WorkspaceFocus};
 pub use evaluation::{EvaluationReport, EvaluationSuite};
-pub use execution::{ActionAdapter, ExecutionBroker, ExecutionError};
+pub use execution::{ActionAdapter, ExecutionBroker, ExecutionContext, ExecutionError};
 pub use firewall::{ContextFirewall, ContextItem, SanitizedContext, TrustLabel};
 pub use gateway::{ToolCall, ToolError, ToolGateway, ToolHandler, ToolResult};
 pub use graph::{AssetKind, GovernanceGraph, GraphEdge, GraphNode, Relation};
