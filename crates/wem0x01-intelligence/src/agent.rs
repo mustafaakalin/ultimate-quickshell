@@ -12,7 +12,6 @@ pub struct AgentRuntime {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentBudget {
     pub max_wall_time_ms: u64,
     pub max_steps: u32,
