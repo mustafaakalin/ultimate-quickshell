@@ -71,3 +71,28 @@
 - [ ] fuzz protocol/config parsers
 - [ ] syscall/resource sandboxing
 - [ ] security audit
+
+
+## Intelligence Plane
+
+- [x] AI asset model: agents, tools, skills, MCP servers, memory, specs
+- [x] Local/cloud/hybrid agent descriptors
+- [x] bounded subagent delegation model
+- [x] typed memory with provenance/trust/sensitivity
+- [x] governance graph
+- [x] AI policy model
+- [x] execution budgets
+- [x] trace/evaluation primitives
+- [ ] persistent encrypted memory backend
+- [ ] MCP client/server runtime
+- [ ] local model runtime adapter
+- [ ] cloud model adapter with explicit egress policy
+- [ ] tool execution broker
+- [ ] spec validator and acceptance-test runner
+- [ ] skill compiler/loader
+- [ ] human approval service
+- [ ] OpenTelemetry exporter
+- [ ] prompt/context firewall and injection-resistant context handling
+- [ ] AI incident diagnosis runtime
+- [ ] subagent supervisor and quarantine
+- [ ] governance graph persistence and impact analysis
