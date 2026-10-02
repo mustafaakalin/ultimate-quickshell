@@ -1,8 +1,8 @@
 //! Compositor-neutral adapter layer.
 //!
-//! The important design rule is capability discovery instead of compositor
-//! assumptions. Hyprland can expose IPC-specific features while Sway/Niri/River
-//! can provide their own implementations without changing the core state model.
+//! The core discovers capabilities instead of assuming one compositor.
+//! Adapters may use native IPC and Wayland protocols; the rest of lem0x01
+//! consumes normalized events.
 
 use lem0x01_protocol::{Capability, EnvironmentSnapshot};
 
@@ -19,3 +19,5 @@ pub mod detection {
             .unwrap_or_else(|_| "unknown".into())
     }
 }
+
+pub mod hyprland;
