@@ -1,0 +1,19 @@
+# wem0x01 — Wayland Environment Manager
+
+[core]
+event_buffer = 512
+log_level = "info"
+
+[compositor]
+backend = "auto"
+
+[ui]
+frontend = "quickshell"
+
+[policy]
+allow_external_commands = false
+allow_privileged_actions = false
+
+[theme]
+source = "auto"
+format = "material-oklch"
