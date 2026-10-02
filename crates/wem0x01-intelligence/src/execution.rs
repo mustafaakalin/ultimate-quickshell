@@ -148,7 +148,7 @@ mod tests {
         let mut capabilities = CapabilityRegistry::default();
         capabilities.register("test.noop", Effect::Control);
 
-        let policy = PolicyEngine::default();
+        let policy = PolicyEngine;
         let principal = Principal::frontend("test");
         let action = TransactionAction {
             capability: "test.noop".into(),
