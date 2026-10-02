@@ -61,8 +61,7 @@ async fn main() -> anyhow::Result<()> {
                 }
             });
         }
-    }
-
+    
     let runtime_dir = std::env::var_os("XDG_RUNTIME_DIR")
         .map(std::path::PathBuf::from)
         .ok_or_else(|| anyhow::anyhow!("XDG_RUNTIME_DIR is required for local IPC"))?;
