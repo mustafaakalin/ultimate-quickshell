@@ -3,8 +3,8 @@ use std::collections::BTreeMap;
 
 use crate::OperationRegistry;
 use wem0x01_core::{
-    CapabilityRegistry, Checkpoint, PolicyEngine, Principal, Transaction, TransactionAction,
-    TransactionEngine, TransactionError,
+    CapabilityRegistry, Checkpoint, PolicyEngine, Principal, StateStore, Transaction,
+    TransactionAction, TransactionEngine, TransactionError,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -56,6 +56,7 @@ impl ExecutionBroker {
         policy: &PolicyEngine,
         capabilities: &CapabilityRegistry,
         operations: &OperationRegistry,
+        state: &StateStore,
         transactions: &mut TransactionEngine,
     ) -> Result<(), ExecutionError> {
         for action in &tx.actions {
@@ -83,11 +84,15 @@ impl ExecutionBroker {
 
         if transactions.checkpoint_for(&tx.id).is_none() {
             let checkpoint_id = format!("cp-{}", tx.id);
+            let snapshot = state.snapshot().await;
+            let digest = snapshot
+                .digest()
+                .map_err(|error| ExecutionError::Adapter(error.to_string()))?;
             let checkpoint = Checkpoint::new(
                 checkpoint_id.clone(),
                 tx.id.clone(),
-                0,
-                "state-digest-pending",
+                snapshot.generation,
+                digest,
             );
             transactions.checkpoint(checkpoint)?;
             transactions.attach_checkpoint(&tx.id, checkpoint_id)?;
@@ -203,6 +208,7 @@ mod tests {
                 &policy,
                 &capabilities,
                 &operations,
+                &StateStore::new(Default::default()),
                 &mut transactions,
             )
             .await
