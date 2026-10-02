@@ -49,7 +49,7 @@
 - [ ] remote automation client
 
 ## Phase 6 — Extension platform
-- [ ] out-of-process plugin protocol
+- [x] modular plugin manifest and capability model
 - [ ] capability-scoped extensions
 - [ ] signed extension metadata
 - [ ] compatibility/version negotiation
@@ -58,9 +58,9 @@
 - [ ] Incident model and flight recorder
 - [ ] Evidence bundle and redaction engine
 - [ ] Diagnostic skill format
-- [ ] MCP capability broker
-- [ ] Agent plan/approval/transaction flow
-- [ ] Checkpoint and rollback engine
+- [x] MCP capability broker model
+- [x] Agent plan/approval/transaction flow
+- [x] Checkpoint and rollback engine
 - [ ] Agent sandbox runner
 - [ ] Deterministic diagnosis/replay harness
 
@@ -83,16 +83,17 @@
 - [x] AI policy model
 - [x] execution budgets
 - [x] trace/evaluation primitives
-- [ ] persistent encrypted memory backend
+- [x] namespace-scoped memory repository model
+- [ ] persistent encrypted storage backend
 - [ ] MCP client/server runtime
 - [ ] local model runtime adapter
 - [ ] cloud model adapter with explicit egress policy
 - [ ] tool execution broker
 - [ ] spec validator and acceptance-test runner
 - [ ] skill compiler/loader
-- [ ] human approval service
+- [ ] human approval service (runtime/UI)
 - [ ] OpenTelemetry exporter
-- [ ] prompt/context firewall and injection-resistant context handling
+- [x] prompt/context firewall and injection-resistant context handling
 - [ ] AI incident diagnosis runtime
 - [ ] subagent supervisor and quarantine
 - [ ] governance graph persistence and impact analysis
