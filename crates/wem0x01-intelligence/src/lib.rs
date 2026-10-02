@@ -9,13 +9,15 @@ use std::collections::BTreeMap;
 use thiserror::Error;
 
 pub mod agent;
+pub mod graph;
 pub mod memory;
 pub mod registry;
 pub mod skill;
 pub mod spec;
 pub mod tool;
 
-pub use agent::{AgentDescriptor, AgentKind, AgentRuntime};
+pub use agent::{AgentBudget, AgentDescriptor, AgentKind, AgentRole, AgentRuntime};
+pub use graph::{AssetKind, GraphEdge, GraphNode, GovernanceGraph, Relation};
 pub use memory::{MemoryEntry, MemoryKind, MemoryStore, MemoryTrust};
 pub use registry::{AssetId, AssetRegistry, AssetRevision};
 pub use skill::{SkillDescriptor, SkillStep};
