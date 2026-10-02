@@ -9,10 +9,12 @@ pub mod actor;
 pub mod journal;
 pub mod plugin;
 pub mod reducer;
+pub mod transaction;
 pub use actor::{Actor, ActorContext, RestartPolicy, Supervisor};
 pub use journal::{IncidentJournal, JournalEntry};
 pub use plugin::{BuiltInPlugin, PluginContext, PluginError, PluginKind, PluginManifest, PluginRecord, PluginRegistry};
 pub use reducer::StateReducer;
+pub use transaction::{Postcondition, Precondition, Transaction, TransactionAction, TransactionEngine, TransactionError, TransactionState};
 use wem0x01_protocol::{AgentIntent, Capability, Command, CompositorEvent, EnvironmentSnapshot, Incident, TransactionPlan};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
