@@ -1,0 +1,23 @@
+# lem0x01 — Linux Environment Manager
+# User-session configuration. No root daemon is required.
+
+[core]
+event_buffer = 256
+log_level = "info"
+
+[compositor]
+# auto | hyprland | sway | niri | river | wayfire
+backend = "auto"
+
+[ui]
+# quickshell is optional. Future native Wayland clients can be selected here.
+frontend = "quickshell"
+
+[policy]
+# Capabilities are opt-in. Unknown capabilities fail closed.
+allow_external_commands = false
+allow_privileged_actions = false
+
+[theme]
+source = "auto"
+format = "material-oklch"
