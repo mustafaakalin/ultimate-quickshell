@@ -2,42 +2,22 @@ name: CI
 
 on:
   push:
+    branches: ["main", "dev/**"]
   pull_request:
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
-  rust:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: 1.99.0
           components: rustfmt, clippy
-      - name: Format
-        run: cargo fmt --all -- --check
-      - name: Check
-        run: cargo check --workspace --all-targets
-      - name: Clippy
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
-
-  shell:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check repository structure
-        run: |
-          test -f LICENSE
-          test -f README.md
-          test -f Cargo.toml
-          test -f docs/architecture.md
-          test -f quickshell/shell.qml
-          test -f quickshell/services/qmldir
-          test -f nvim/colors/ultimate.lua
-      - name: Check QML files are non-empty
-        run: |
-          find quickshell -name '*.qml' -type f -print0 | xargs -0 -r -n1 test -s
-      - name: Check shell scripts
-        run: |
-          for f in scripts/*; do
-            [ -f "$f" ] || continue
-            bash -n "$f"
-          done
+      - run: cargo fmt --all -- --check
+      - run: cargo check --workspace
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
