@@ -93,7 +93,7 @@ impl ExecutionBroker {
         }
         transactions.begin(&tx.id)?;
 
-        let mut completed = Vec::new();
+        let mut completed: Vec<TransactionAction> = Vec::new();
         for action in &tx.actions {
             let Some(adapter) = self.adapter_for(&action.operation) else {
                 let _ = transactions.rollback(&tx.id);
