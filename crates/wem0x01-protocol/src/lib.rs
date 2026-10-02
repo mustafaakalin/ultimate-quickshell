@@ -25,6 +25,7 @@ pub enum Command {
     OpenSurface(String),
     CloseSurface(String),
     RestartComponent(String),
+    Agent(AgentIntent),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
