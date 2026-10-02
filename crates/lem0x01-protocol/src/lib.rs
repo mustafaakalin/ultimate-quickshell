@@ -1,5 +1,4 @@
 //! Stable control-plane types shared by the daemon, CLI and UI adapters.
-//! Keep this crate dependency-light: it is the wire/schema boundary.
 
 use serde::{Deserialize, Serialize};
 
@@ -23,4 +22,11 @@ pub enum Command {
     OpenSurface(String),
     CloseSurface(String),
     RestartComponent(String),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CompositorEvent {
+    pub compositor: String,
+    pub name: String,
+    pub data: String,
 }
