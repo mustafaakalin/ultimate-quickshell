@@ -99,3 +99,47 @@ impl ExecutionBroker {
         Ok(())
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wem0x01_core::{Effect, TransactionState};
+
+    #[tokio::test]
+    async fn executes_validated_transaction_through_adapter() {
+        let mut capabilities = CapabilityRegistry::default();
+        capabilities.register("test.noop", Effect::Control);
+
+        let policy = PolicyEngine::default();
+        let principal = Principal::frontend("test");
+        let action = TransactionAction {
+            capability: "test.noop".into(),
+            operation: "test.noop.reset".into(),
+            reversible: true,
+            rollback_operation: Some("test.noop.rollback".into()),
+        };
+        let tx = Transaction {
+            id: "tx-1".into(),
+            principal: principal.id.clone(),
+            reason: "integration test".into(),
+            state: TransactionState::Draft,
+            actions: vec![action],
+            preconditions: vec![],
+            postconditions: vec![],
+            requires_approval: false,
+            approval_revision: 0,
+        };
+
+        let mut transactions = TransactionEngine::default();
+        transactions.insert(tx.clone());
+        transactions.validate("tx-1", &principal, &policy, &capabilities).unwrap();
+
+        let mut broker = ExecutionBroker::default();
+        broker.register(Box::new(crate::NoopAdapter));
+
+        broker.execute(&tx, &principal, &policy, &capabilities, &mut transactions).await.unwrap();
+
+        assert_eq!(transactions.get("tx-1").unwrap().state, TransactionState::Committed);
+    }
+}
