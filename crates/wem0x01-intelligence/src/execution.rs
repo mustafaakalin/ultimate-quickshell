@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 
-use wem0x01_core::{CapabilityRegistry, PolicyEngine, Principal, Transaction, TransactionAction, TransactionEngine, TransactionError};
+use wem0x01_core::{CapabilityRegistry, Checkpoint, PolicyEngine, Principal, Transaction, TransactionAction, TransactionEngine, TransactionError};
 use crate::OperationRegistry;
 
 #[derive(Debug, thiserror::Error)]
@@ -69,6 +69,17 @@ impl ExecutionBroker {
             }
         }
 
+        if transactions.checkpoint_for(&tx.id).is_none() {
+            let checkpoint_id = format!("cp-{}", tx.id);
+            let checkpoint = Checkpoint::new(
+                checkpoint_id.clone(),
+                tx.id.clone(),
+                0,
+                "state-digest-pending",
+            );
+            transactions.checkpoint(checkpoint)?;
+            transactions.attach_checkpoint(&tx.id, checkpoint_id)?;
+        }
         transactions.begin(&tx.id)?;
 
         let mut completed = Vec::new();
