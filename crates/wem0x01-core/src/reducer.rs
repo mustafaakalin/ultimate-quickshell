@@ -48,7 +48,7 @@ impl StateReducer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use wem0x01_protocol::{CompositorEvent, EnvironmentSnapshot, PROTOCOL_VERSION};
+    use wem0x01_protocol::CompositorEvent;
 
     #[test]
     fn compositor_event_advances_generation() {
