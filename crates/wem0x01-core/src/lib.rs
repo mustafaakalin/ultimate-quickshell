@@ -11,8 +11,10 @@ use tokio::sync::{broadcast, RwLock};
 
 pub mod actor;
 pub mod journal;
+pub mod reducer;
 pub use actor::{Actor, ActorContext, RestartPolicy, Supervisor};
 pub use journal::{IncidentJournal, JournalEntry};
+pub use reducer::StateReducer;
 use wem0x01_protocol::{AgentIntent, Capability, Command, CompositorEvent, EnvironmentSnapshot, Incident, TransactionPlan};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
