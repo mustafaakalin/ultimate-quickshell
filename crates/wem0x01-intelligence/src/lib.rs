@@ -40,9 +40,7 @@ pub use memory_repo::{MemoryRecord, MemoryRepository};
 pub use operation::{
     Idempotency, OperationEffect, OperationRegistry, OperationSpec, OperationSpecError,
 };
-pub use orchestrator::{
-    AgentOrchestrator, AgentRun, ApprovalScope, Delegation, OrchestratorError, RunState,
-};
+pub use orchestrator::{AgentRun, Delegation, RunState};
 pub use policy::{AiPolicy, ContextDisposition};
 pub use registry::{AssetId, AssetRegistry, AssetRevision};
 pub use skill::{SkillDescriptor, SkillStep};
