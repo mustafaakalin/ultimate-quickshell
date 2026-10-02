@@ -1,6 +1,6 @@
 use crate::{
     IntelligenceError,
-    memory::{MemoryEntry, MemoryKind, MemoryTrust},
+    memory::MemoryEntry,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
