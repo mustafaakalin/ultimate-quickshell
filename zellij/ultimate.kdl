@@ -1,0 +1,4 @@
+theme "ultimate"
+copy_on_select true
+pane_frames false
+simplified_ui true
