@@ -1,4 +1,4 @@
-use crate::{memory::MemoryEntry, IntelligenceError};
+use crate::{IntelligenceError, memory::MemoryEntry};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
