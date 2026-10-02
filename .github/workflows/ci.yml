@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check repository structure
+        run: |
+          test -f LICENSE
+          test -f README.md
+          test -f CONTRIBUTING.md
+          test -f quickshell/shell.qml
+          test -f quickshell/services/qmldir
+          test -f nvim/colors/ultimate.lua
+      - name: Check QML files are non-empty
+        run: |
+          find quickshell -name '*.qml' -type f -print0 | xargs -0 -r -n1 test -s
+      - name: Check shell scripts
+        run: |
+          for f in scripts/*; do
+            [ -f "$f" ] || continue
+            bash -n "$f"
+          done
