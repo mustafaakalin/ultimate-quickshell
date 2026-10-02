@@ -138,7 +138,7 @@ impl ExecutionBroker {
                         let _ = adapter.rollback(previous).await;
                     }
                 }
-                let _ = transactions.rollback(&tx.id);
+                let _ = context.transactions.rollback(&tx.id);
                 return Err(match error {
                     ExecutionError::Verification(_) => error,
                     other => ExecutionError::Verification(other.to_string()),
