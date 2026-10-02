@@ -39,6 +39,7 @@ pub struct Transaction {
     pub postconditions: Vec<Postcondition>,
     pub requires_approval: bool,
     pub approval_revision: u64,
+    pub checkpoint_id: Option<String>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -94,6 +95,15 @@ impl TransactionEngine {
         tx.approval_revision = tx.approval_revision.saturating_add(1);
         tx.state = TransactionState::Approved;
         Ok(tx.approval_revision)
+    }
+
+    pub fn attach_checkpoint(&mut self, transaction_id: &str, checkpoint_id: impl Into<String>) -> Result<(), TransactionError> {
+        let tx = self.transactions.get_mut(transaction_id).ok_or_else(|| TransactionError::NotFound(transaction_id.into()))?;
+        if tx.state != TransactionState::Approved {
+            return Err(TransactionError::InvalidState);
+        }
+        tx.checkpoint_id = Some(checkpoint_id.into());
+        Ok(())
     }
 
     pub fn begin(&mut self, id: &str) -> Result<(), TransactionError> {
