@@ -81,7 +81,7 @@ async fn main() -> anyhow::Result<()> {
             signal?;
             ipc_task.abort();
         }
-        result = ipc_task => {
+        result = &mut ipc_task => {
             result??;
         }
     }
