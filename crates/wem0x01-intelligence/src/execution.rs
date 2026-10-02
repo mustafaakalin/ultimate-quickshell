@@ -1,8 +1,11 @@
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 
-use wem0x01_core::{CapabilityRegistry, Checkpoint, PolicyEngine, Principal, Transaction, TransactionAction, TransactionEngine, TransactionError};
 use crate::OperationRegistry;
+use wem0x01_core::{
+    CapabilityRegistry, Checkpoint, PolicyEngine, Principal, Transaction, TransactionAction,
+    TransactionEngine, TransactionError,
+};
 
 #[derive(Debug, thiserror::Error)]
 pub enum ExecutionError {
@@ -37,7 +40,8 @@ impl ExecutionBroker {
     }
 
     fn adapter_for(&self, operation: &str) -> Option<&dyn ActionAdapter> {
-        self.adapters.iter()
+        self.adapters
+            .iter()
             .filter(|(prefix, _)| operation.starts_with(prefix.as_str()))
             .max_by_key(|(prefix, _)| prefix.len())
             .map(|(_, adapter)| adapter.as_ref())
@@ -53,18 +57,24 @@ impl ExecutionBroker {
         transactions: &mut TransactionEngine,
     ) -> Result<(), ExecutionError> {
         for action in &tx.actions {
-            capabilities.authorize(policy, principal, &action.capability)
+            capabilities
+                .authorize(policy, principal, &action.capability)
                 .map_err(|_| ExecutionError::CapabilityDenied(action.capability.clone()))?;
-            let spec = operations.get(&action.operation)
+            let spec = operations
+                .get(&action.operation)
                 .ok_or_else(|| ExecutionError::AdapterNotFound(action.operation.clone()))?;
             if spec.capability != action.capability || spec.reversible != action.reversible {
                 return Err(ExecutionError::Adapter(format!(
-                    "operation contract mismatch: {}", action.operation
+                    "operation contract mismatch: {}",
+                    action.operation
                 )));
             }
-            if action.reversible && spec.rollback_operation.as_deref() != action.rollback_operation.as_deref() {
+            if action.reversible
+                && spec.rollback_operation.as_deref() != action.rollback_operation.as_deref()
+            {
                 return Err(ExecutionError::Adapter(format!(
-                    "rollback contract mismatch: {}", action.operation
+                    "rollback contract mismatch: {}",
+                    action.operation
                 )));
             }
         }
@@ -104,7 +114,8 @@ impl ExecutionBroker {
         transactions.begin_verify(&tx.id)?;
 
         for action in &tx.actions {
-            let adapter = self.adapter_for(&action.operation)
+            let adapter = self
+                .adapter_for(&action.operation)
                 .ok_or_else(|| ExecutionError::AdapterNotFound(action.operation.clone()))?;
             if let Err(error) = adapter.verify(action).await {
                 for previous in completed.iter().rev() {
@@ -154,6 +165,7 @@ mod tests {
             postconditions: vec![],
             requires_approval: false,
             approval_revision: 0,
+            checkpoint_id: None,
         };
 
         let mut transactions = TransactionEngine::default();
@@ -162,16 +174,36 @@ mod tests {
 
         let mut broker = ExecutionBroker::default();
         let mut operations = OperationRegistry::default();
-        operations.register(crate::OperationSpec {
-            id: "test.noop.reset".into(), version: 1, capability: "test.noop".into(),
-            effect: crate::OperationEffect::Control, input_schema: "none".into(), output_schema: "ack".into(),
-            timeout_ms: 1000, max_input_bytes: 1024, max_output_bytes: 1024,
-            idempotency: crate::Idempotency::Idempotent, reversible: true,
-            rollback_operation: Some("test.noop.rollback".into()), verification_operation: None,
-        }).unwrap();
+        operations
+            .register(crate::OperationSpec {
+                id: "test.noop.reset".into(),
+                version: 1,
+                capability: "test.noop".into(),
+                effect: crate::OperationEffect::Control,
+                input_schema: "none".into(),
+                output_schema: "ack".into(),
+                timeout_ms: 1000,
+                max_input_bytes: 1024,
+                max_output_bytes: 1024,
+                idempotency: crate::Idempotency::Idempotent,
+                reversible: true,
+                rollback_operation: Some("test.noop.rollback".into()),
+                verification_operation: None,
+            })
+            .unwrap();
         broker.register(Box::new(crate::NoopAdapter));
 
-        broker.execute(&tx, &principal, &policy, &capabilities, &operations, &mut transactions).await.unwrap();
+        broker
+            .execute(
+                &tx,
+                &principal,
+                &policy,
+                &capabilities,
+                &operations,
+                &mut transactions,
+            )
+            .await
+            .unwrap();
 
         assert_eq!(transactions.get("tx-1").unwrap().state, TransactionState::Committed);
     }
