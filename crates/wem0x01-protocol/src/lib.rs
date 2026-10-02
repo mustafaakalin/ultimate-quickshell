@@ -4,6 +4,12 @@ use serde::{Deserialize, Serialize};
 
 pub const PROTOCOL_VERSION: u16 = 1;
 
+/// Declared client role. Authorization is still enforced by the daemon and
+/// must not trust this field as process identity; it is a protocol-level hint
+/// until distinct principals/sockets are introduced.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum ClientKind { Ui, Cli, Agent, Plugin, Automation }
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Capability {
     pub id: String,
@@ -83,6 +89,8 @@ pub struct TransactionPlan {
 pub struct IpcHello {
     pub protocol: u16,
     pub client: String,
+    #[serde(default)]
+    pub kind: Option<ClientKind>,
     pub requested_capabilities: Vec<String>,
 }
 
