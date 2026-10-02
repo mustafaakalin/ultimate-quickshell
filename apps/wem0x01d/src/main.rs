@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use tracing::{error, info};
 use wem0x01_compositor::detection::compositor_hint;
-use wem0x01_core::{EnvironmentEvent, EnvironmentState, EventBus, PolicyEngine, Principal, StateStore};
+use wem0x01_core::{EnvironmentEvent, EnvironmentState, EventBus, CapabilityRegistry, Effect, PolicyEngine, Principal, StateStore};
 use wem0x01_protocol::Capability;
 
 #[tokio::main]
@@ -13,7 +13,13 @@ async fn main() -> anyhow::Result<()> {
     let bus = EventBus::new(512);
     let policy = PolicyEngine::default();
     let frontend = Principal::frontend("local-ui");
-    policy.authorize(&frontend, wem0x01_core::Effect::Read)?;
+    let mut capabilities = CapabilityRegistry::default();
+    capabilities.register("environment.snapshot", Effect::Read);
+    capabilities.register("environment.control", Effect::Control);
+    capabilities.register("process.spawn", Effect::SpawnProcess);
+    capabilities.register("config.write", Effect::WriteConfig);
+    capabilities.register("privileged.operation", Effect::Privileged);
+    capabilities.authorize(&policy, &frontend, "environment.snapshot")?;
 
     let initial = EnvironmentState {
         generation: 0,
