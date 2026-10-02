@@ -48,7 +48,7 @@ pub enum EnvironmentEvent {
     TransactionPlanned(TransactionPlan),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Effect {
     Read,
     Control,
