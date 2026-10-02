@@ -33,3 +33,47 @@ pub struct CompositorEvent {
     pub name: String,
     pub data: String,
 }
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum IncidentSeverity {
+    Info,
+    Warning,
+    Error,
+    Critical,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Incident {
+    pub id: String,
+    pub component: String,
+    pub severity: IncidentSeverity,
+    pub trigger: String,
+    pub timestamp_unix_ms: u64,
+    pub evidence_refs: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum AgentIntent {
+    InvestigateIncident { incident_id: String },
+    DiagnoseIncident { incident_id: String },
+    PreviewTransaction { transaction_id: String },
+    ApplyTransaction { transaction_id: String },
+    RollbackTransaction { transaction_id: String },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TransactionAction {
+    pub capability: String,
+    pub operation: String,
+    pub reversible: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TransactionPlan {
+    pub id: String,
+    pub reason: String,
+    pub actions: Vec<TransactionAction>,
+    pub requires_approval: bool,
+}
+
