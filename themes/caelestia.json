@@ -1,0 +1,16 @@
+{
+  "name": "caelestia-blue",
+  "background": "#0e1117",
+  "surface": "#171b23",
+  "surface2": "#242a35",
+  "foreground": "#edf1fa",
+  "muted": "#abb5c8",
+  "accent": "#b7c9ff",
+  "accent_strong": "#88a7ff",
+  "red": "#ffb4ab",
+  "yellow": "#ffd38f",
+  "green": "#a8e6c8",
+  "cyan": "#9edcff",
+  "blue": "#9db8ff",
+  "magenta": "#d4b8ff"
+}
