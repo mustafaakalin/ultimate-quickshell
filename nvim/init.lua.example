@@ -1,0 +1,6 @@
+vim.o.termguicolors = true
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.signcolumn = 'yes'
+vim.cmd.colorscheme('ultimate')
+-- Or: require('ultimate').setup()
