@@ -1,13 +1,20 @@
 [workspace]
 resolver = "2"
-members = ["crates/wem0x01-core","crates/wem0x01-protocol","crates/wem0x01-platform","crates/wem0x01-compositor","apps/wem0x01d","apps/wem0x01ctl"]
+members = [
+  "crates/wem0x01-core",
+  "crates/wem0x01-protocol",
+  "crates/wem0x01-platform",
+  "crates/wem0x01-compositor",
+  "apps/wem0x01d",
+  "apps/wem0x01ctl",
+]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
 authors = ["Mustafa Akalin"]
-rust-version = "1.85"
+rust-version = "1.99"
 
 [workspace.dependencies]
 anyhow = "1"
