@@ -1,6 +1,6 @@
-# wem0x01 — Linux Environment Manager
+# wem0x01 — Wayland Environment Manager
 
-**wem0x01** is a Rust-first, event-driven **Linux environment manager and Wayland session control plane**.
+**wem0x01** is a Rust-first, event-driven **Wayland environment manager and Wayland session control plane**.
 
 It is not a Quickshell configuration and it is not a desktop shell. The project coordinates the pieces that make a modern Wayland desktop environment work together: compositor integration, user-session services, devices, media, policies, profiles, themes, lifecycle, automation and optional UI frontends.
 
@@ -195,11 +195,11 @@ See `SECURITY.md` and `docs/architecture.md`.
 
 ## Project identity
 
-The project is evolving from its original Quickshell prototype into a broader Linux environment manager. During the v8 migration, legacy paths such as `wem0x01` remain temporarily for compatibility.
+The project is evolving from its original Quickshell prototype into a broader Wayland environment manager. During the v8 migration, legacy frontend paths such as `ultimate-shell` remain temporarily for compatibility.
 
 The target project name is:
 
-**wem0x01 — Linux Environment Manager**
+**wem0x01 — Wayland Environment Manager**
 
 See `docs/architecture.md` for the long-term architecture.
 
