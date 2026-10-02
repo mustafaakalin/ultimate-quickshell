@@ -97,3 +97,6 @@
 - [ ] AI incident diagnosis runtime
 - [ ] subagent supervisor and quarantine
 - [ ] governance graph persistence and impact analysis
+
+
+<!-- checkpoint digest validated -->
