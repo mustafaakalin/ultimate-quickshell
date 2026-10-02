@@ -1,0 +1,15 @@
+[package]
+name = "lem0x01-compositor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
+lem0x01-core = { path = "../lem0x01-core" }
+lem0x01-protocol = { path = "../lem0x01-protocol" }
+tokio.workspace = true
+tracing.workspace = true
+wayland-client.workspace = true
