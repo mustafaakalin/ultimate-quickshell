@@ -9,6 +9,9 @@
 - [x] User systemd service
 - [x] Hyprland event adapter
 - [ ] Authenticated local IPC
+- [ ] Capability broker with peer identity
+- [ ] Supervised actor runtime
+- [ ] Bounded event journal and replay
 
 ## Phase 2 — Platform graph
 - [ ] systemd user lifecycle actor
@@ -51,7 +54,17 @@
 - [ ] signed extension metadata
 - [ ] compatibility/version negotiation
 
-## Phase 7 — Performance/security hardening
+## Phase 7 — Intelligence and recovery
+- [ ] Incident model and flight recorder
+- [ ] Evidence bundle and redaction engine
+- [ ] Diagnostic skill format
+- [ ] MCP capability broker
+- [ ] Agent plan/approval/transaction flow
+- [ ] Checkpoint and rollback engine
+- [ ] Agent sandbox runner
+- [ ] Deterministic diagnosis/replay harness
+
+## Phase 8 — Performance/security hardening
 - [ ] startup benchmarks
 - [ ] idle CPU/RSS benchmarks
 - [ ] IPC latency benchmarks
