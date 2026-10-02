@@ -74,7 +74,7 @@ async fn main() -> anyhow::Result<()> {
         Arc::clone(&policy),
         Arc::clone(&capabilities),
     );
-    let ipc_task = tokio::spawn(async move { server.run().await });
+    let mut ipc_task = tokio::spawn(async move { server.run().await });
 
     tokio::select! {
         signal = tokio::signal::ctrl_c() => {
