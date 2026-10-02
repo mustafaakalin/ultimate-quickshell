@@ -4,6 +4,8 @@ use wem0x01_compositor::detection::compositor_hint;
 use wem0x01_core::{EnvironmentEvent, EnvironmentState, EventBus, CapabilityRegistry, Effect, PolicyEngine, Principal, StateStore};
 use wem0x01_protocol::Capability;
 
+mod ipc;
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
@@ -11,7 +13,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let bus = EventBus::new(512);
-    let policy = PolicyEngine::default();
+    let policy = Arc::new(PolicyEngine::default());
     let frontend = Principal::frontend("local-ui");
     let mut capabilities = CapabilityRegistry::default();
     capabilities.register("environment.snapshot", Effect::Read);
@@ -20,6 +22,7 @@ async fn main() -> anyhow::Result<()> {
     capabilities.register("config.write", Effect::WriteConfig);
     capabilities.register("privileged.operation", Effect::Privileged);
     capabilities.authorize(&policy, &frontend, "environment.snapshot")?;
+    let capabilities = Arc::new(capabilities);
 
     let initial = EnvironmentState {
         generation: 0,
@@ -48,6 +51,29 @@ async fn main() -> anyhow::Result<()> {
         }
     }
 
-    tokio::signal::ctrl_c().await?;
+    let runtime_dir = std::env::var_os("XDG_RUNTIME_DIR")
+        .map(std::path::PathBuf::from)
+        .ok_or_else(|| anyhow::anyhow!("XDG_RUNTIME_DIR is required for local IPC"))?;
+    let socket = runtime_dir.join("wem0x01.sock");
+
+    let server = ipc::IpcServer::new(
+        socket.clone(),
+        Arc::clone(&state),
+        Arc::clone(&policy),
+        Arc::clone(&capabilities),
+    );
+    let ipc_task = tokio::spawn(async move { server.run().await });
+
+    tokio::select! {
+        signal = tokio::signal::ctrl_c() => {
+            signal?;
+            ipc_task.abort();
+        }
+        result = ipc_task => {
+            result??;
+        }
+    }
+
+    let _ = tokio::fs::remove_file(socket).await;
     Ok(())
 }
