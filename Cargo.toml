@@ -1,13 +1,6 @@
 [workspace]
 resolver = "2"
-members = [
-  "crates/wem0x01-core",
-  "crates/wem0x01-protocol",
-  "crates/wem0x01-platform",
-  "crates/wem0x01-compositor",
-  "apps/wem0x01d",
-  "apps/wem0x01ctl",
-]
+members = ["crates/wem0x01-core","crates/wem0x01-protocol","crates/wem0x01-platform","crates/wem0x01-compositor","apps/wem0x01d","apps/wem0x01ctl"]
 
 [workspace.package]
 version = "0.1.0"
@@ -23,8 +16,8 @@ clap = { version = "4", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "sync", "time", "net", "io-util"] }
+tokio = { version = "1", features = ["macros","rt-multi-thread","signal","sync","time","net","io-util"] }
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter","fmt"] }
 wayland-client = "0.31"
 zbus = "5"
