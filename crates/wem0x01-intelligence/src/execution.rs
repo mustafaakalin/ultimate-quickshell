@@ -35,6 +35,15 @@ pub struct ExecutionBroker {
     adapters: BTreeMap<String, Box<dyn ActionAdapter>>,
 }
 
+pub struct ExecutionContext<'a> {
+    pub principal: &'a Principal,
+    pub policy: &'a PolicyEngine,
+    pub capabilities: &'a CapabilityRegistry,
+    pub operations: &'a OperationRegistry,
+    pub state: &'a StateStore,
+    pub transactions: &'a mut TransactionEngine,
+}
+
 impl ExecutionBroker {
     pub fn register(&mut self, adapter: Box<dyn ActionAdapter>) {
         self.adapters
@@ -52,18 +61,15 @@ impl ExecutionBroker {
     pub async fn execute(
         &self,
         tx: &Transaction,
-        principal: &Principal,
-        policy: &PolicyEngine,
-        capabilities: &CapabilityRegistry,
-        operations: &OperationRegistry,
-        state: &StateStore,
-        transactions: &mut TransactionEngine,
+        context: &mut ExecutionContext<'_>,
     ) -> Result<(), ExecutionError> {
         for action in &tx.actions {
-            capabilities
-                .authorize(policy, principal, &action.capability)
+            context
+                .capabilities
+                .authorize(context.policy, context.principal, &action.capability)
                 .map_err(|_| ExecutionError::CapabilityDenied(action.capability.clone()))?;
-            let spec = operations
+            let spec = context
+                .operations
                 .get(&action.operation)
                 .ok_or_else(|| ExecutionError::AdapterNotFound(action.operation.clone()))?;
             if spec.capability != action.capability || spec.reversible != action.reversible {
@@ -82,9 +88,9 @@ impl ExecutionBroker {
             }
         }
 
-        if transactions.checkpoint_for(&tx.id).is_none() {
+        if context.transactions.checkpoint_for(&tx.id).is_none() {
             let checkpoint_id = format!("cp-{}", tx.id);
-            let snapshot = state.snapshot().await;
+            let snapshot = context.state.snapshot().await;
             let digest = snapshot
                 .digest()
                 .map_err(|error| ExecutionError::Adapter(error.to_string()))?;
@@ -94,15 +100,15 @@ impl ExecutionBroker {
                 snapshot.generation,
                 digest,
             );
-            transactions.checkpoint(checkpoint)?;
-            transactions.attach_checkpoint(&tx.id, checkpoint_id)?;
+            context.transactions.checkpoint(checkpoint)?;
+            context.transactions.attach_checkpoint(&tx.id, checkpoint_id)?;
         }
-        transactions.begin(&tx.id)?;
+        context.transactions.begin(&tx.id)?;
 
         let mut completed: Vec<TransactionAction> = Vec::new();
         for action in &tx.actions {
             let Some(adapter) = self.adapter_for(&action.operation) else {
-                let _ = transactions.rollback(&tx.id);
+                let _ = context.transactions.rollback(&tx.id);
                 return Err(ExecutionError::AdapterNotFound(action.operation.clone()));
             };
 
@@ -118,7 +124,7 @@ impl ExecutionBroker {
             completed.push(action.clone());
         }
 
-        transactions.begin_verify(&tx.id)?;
+        context.transactions.begin_verify(&tx.id)?;
 
         for action in &tx.actions {
             let adapter = self
@@ -138,7 +144,7 @@ impl ExecutionBroker {
             }
         }
 
-        transactions.commit(&tx.id)?;
+        context.transactions.commit(&tx.id)?;
         Ok(())
     }
 }
@@ -201,18 +207,17 @@ mod tests {
             .unwrap();
         broker.register(Box::new(crate::NoopAdapter));
 
-        broker
-            .execute(
-                &tx,
-                &principal,
-                &policy,
-                &capabilities,
-                &operations,
-                &StateStore::new(Default::default()),
-                &mut transactions,
-            )
-            .await
-            .unwrap();
+        let state = StateStore::new(Default::default());
+        let mut context = ExecutionContext {
+            principal: &principal,
+            policy: &policy,
+            capabilities: &capabilities,
+            operations: &operations,
+            state: &state,
+            transactions: &mut transactions,
+        };
+
+        broker.execute(&tx, &mut context).await.unwrap();
 
         assert_eq!(
             transactions.get("tx-1").unwrap().state,
