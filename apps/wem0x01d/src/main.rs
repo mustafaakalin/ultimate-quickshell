@@ -16,7 +16,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let bus = EventBus::new(512);
-    let policy = Arc::new(PolicyEngine::default());
+    let policy = Arc::new(PolicyEngine);
     let frontend = Principal::frontend("local-ui");
     let mut capabilities = CapabilityRegistry::default();
     capabilities.register("environment.snapshot", Effect::Read);
@@ -49,8 +49,8 @@ async fn main() -> anyhow::Result<()> {
     bus.publish(EnvironmentEvent::Snapshot(snapshot.clone()));
     info!(compositor = %snapshot.compositor, generation = snapshot.generation, "wem0x01 control plane started");
 
-    if snapshot.compositor.to_ascii_lowercase().contains("hypr") {
-        if let Ok(events) = wem0x01_compositor::hyprland::HyprlandEvents::from_environment() {
+    if snapshot.compositor.to_ascii_lowercase().contains("hypr")
+        && let Ok(events) = wem0x01_compositor::hyprland::HyprlandEvents::from_environment() {
             let tx = bus;
             tokio::spawn(async move {
                 if let Err(error) = events
