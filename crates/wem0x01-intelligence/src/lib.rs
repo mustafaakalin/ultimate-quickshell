@@ -9,6 +9,7 @@ use thiserror::Error;
 
 pub mod agent;
 pub mod graph;
+pub mod gateway;
 pub mod memory;
 pub mod orchestrator;
 pub mod evaluation;
@@ -22,6 +23,7 @@ pub mod tool;
 
 pub use agent::{AgentBudget, AgentDescriptor, AgentKind, AgentRole, AgentRuntime};
 pub use graph::{AssetKind, GraphEdge, GraphNode, GovernanceGraph, Relation};
+pub use gateway::{ToolCall, ToolError, ToolGateway, ToolHandler, ToolResult};
 pub use memory::{MemoryEntry, MemoryKind, MemoryStore, MemoryTrust};
 pub use mcp::{McpServerDescriptor, McpTransport};
 pub use orchestrator::{AgentRun, Delegation, RunState};
