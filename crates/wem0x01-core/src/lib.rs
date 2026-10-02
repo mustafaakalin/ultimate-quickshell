@@ -6,11 +6,13 @@ use std::{collections::HashSet, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
 
 pub mod actor;
+pub mod checkpoint;
 pub mod journal;
 pub mod plugin;
 pub mod reducer;
 pub mod transaction;
 pub use actor::{Actor, ActorContext, RestartPolicy, Supervisor};
+pub use checkpoint::{Checkpoint, CheckpointError, CheckpointStore};
 pub use journal::{IncidentJournal, JournalEntry};
 pub use plugin::{BuiltInPlugin, PluginContext, PluginError, PluginKind, PluginManifest, PluginRecord, PluginRegistry};
 pub use reducer::StateReducer;
