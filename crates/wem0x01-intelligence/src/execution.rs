@@ -120,7 +120,7 @@ impl ExecutionBroker {
                         let _ = adapter.rollback(previous).await;
                     }
                 }
-                let _ = transactions.rollback(&tx.id);
+                let _ = context.transactions.rollback(&tx.id);
                 return Err(error);
             }
             completed.push(action.clone());
@@ -220,6 +220,7 @@ mod tests {
         };
 
         broker.execute(&tx, &mut context).await.unwrap();
+        drop(context);
 
         assert_eq!(
             transactions.get("tx-1").unwrap().state,
