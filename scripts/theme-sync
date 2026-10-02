@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
+ROOT="$CFG/ultimate-shell"
+name="${1:-ultimate}"
+file="$ROOT/themes/$name.json"
+[[ -f "$file" ]] || { echo "Unknown theme: $name" >&2; exit 1; }
+python3 - "$file" "$CFG/quickshell/ultimate-shell/config/Theme.qml" "$CFG/kitty/themes/ultimate.conf" "$CFG/fuzzel/ultimate.ini" <<'PY'
+import json, pathlib, sys
+p=json.load(open(sys.argv[1]))
+def write(path, text):
+    pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
+    pathlib.Path(path).write_text(text)
+q = """pragma Singleton
+import QtQuick
+QtObject {
+ readonly property int barHeight: 46
+ readonly property int radius: 18
+ readonly property int radiusSmall: 12
+ readonly property int gap: 8
+ readonly property color bg: "%s"
+ readonly property color bgElevated: "%s"
+ readonly property color bgStrong: "%s"
+ readonly property color fg: "%s"
+ readonly property color fgMuted: "%s"
+ readonly property color accent: "%s"
+ readonly property color accentStrong: "%s"
+ readonly property color success: "%s"
+ readonly property color warning: "%s"
+ readonly property color danger: "%s"
+ readonly property color info: "%s"
+}
+""" % (p["background"],p["surface"],p["surface2"],p["foreground"],p["muted"],p["accent"],p["accent_strong"],p["green"],p["yellow"],p["red"],p["cyan"])
+write(sys.argv[2], q)
+k = """background %s
+foreground %s
+selection_background %s
+selection_foreground %s
+""" % (p["background"],p["foreground"],p["accent"],p["background"])
+write(sys.argv[3], k)
+f = """[main]
+font=monospace:size=12
+prompt=>
+[colors]
+background=%see
+text=%sff
+prompt=%sff
+input=%sff
+selection=%sff
+selection-text=%sff
+border=%sff
+""" % tuple(x.lstrip("#") for x in (p["background"],p["foreground"],p["accent"],p["foreground"],p["surface2"],p["foreground"],p["accent"]))
+write(sys.argv[4], f)
+PY
+qs ipc call ultimate reloadShell >/dev/null 2>&1 || true
