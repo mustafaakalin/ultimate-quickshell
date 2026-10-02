@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 
-use wem0x01_core::{CapabilityRegistry, Effect, PolicyEngine, Principal, Transaction, TransactionAction, TransactionEngine, TransactionError};
+use wem0x01_core::{CapabilityRegistry, PolicyEngine, Principal, Transaction, TransactionAction, TransactionEngine, TransactionError};
 
 #[derive(Debug, thiserror::Error)]
 pub enum ExecutionError {
