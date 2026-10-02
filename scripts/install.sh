@@ -13,8 +13,8 @@ mkdir -p "$BIN" "$CFG/systemd/user" "$CFG/quickshell/ultimate-shell"   "$CFG/hyp
 # Build the Rust control plane when Cargo is available.
 if command -v cargo >/dev/null 2>&1; then
   cargo build --manifest-path "$ROOT/Cargo.toml" --release
-  install -Dm755 "$ROOT/target/release/lem0x01d" "$BIN/lem0x01d"
-  install -Dm755 "$ROOT/target/release/lem0x01ctl" "$BIN/lem0x01ctl"
+  install -Dm755 "$ROOT/target/release/wem0x01d" "$BIN/wem0x01d"
+  install -Dm755 "$ROOT/target/release/wem0x01ctl" "$BIN/wem0x01ctl"
 fi
 
 backup "$CFG/quickshell/ultimate-shell"
@@ -25,14 +25,14 @@ cp "$ROOT/fuzzel/ultimate.ini" "$CFG/fuzzel/"
 cp "$ROOT/nvim/colors/ultimate.lua" "$CFG/nvim/colors/"
 cp -a "$ROOT/themes/." "$CFG/ultimate-shell/themes/"
 cp "$ROOT/scripts/theme-sync" "$CFG/ultimate-shell/theme-sync"
-cp "$ROOT/config/lem0x01.toml.example" "$CFG/lem0x01.toml.example"
+cp "$ROOT/config/wem0x01.toml.example" "$CFG/wem0x01.toml.example"
 chmod +x "$CFG/ultimate-shell/theme-sync"
 
-install -Dm644 "$ROOT/systemd/lem0x01.service" "$CFG/systemd/user/lem0x01.service"
+install -Dm644 "$ROOT/systemd/wem0x01.service" "$CFG/systemd/user/wem0x01.service"
 systemctl --user daemon-reload
 
-if command -v systemctl >/dev/null 2>&1 && command -v lem0x01d >/dev/null 2>&1; then
-  systemctl --user enable --now lem0x01.service
+if command -v systemctl >/dev/null 2>&1 && command -v wem0x01d >/dev/null 2>&1; then
+  systemctl --user enable --now wem0x01.service
 fi
 
-printf '%s\n'   "Installed lem0x01 Linux Environment Manager."   "Control plane: $BIN/lem0x01d"   "CLI:           $BIN/lem0x01ctl"   "Frontend:      qs -c ultimate-shell"   "Hyprland:      source ~/.config/hypr/ultimate-shell.conf"
+printf '%s\n'   "Installed wem0x01 Linux Environment Manager."   "Control plane: $BIN/wem0x01d"   "CLI:           $BIN/wem0x01ctl"   "Frontend:      qs -c ultimate-shell"   "Hyprland:      source ~/.config/hypr/ultimate-shell.conf"
