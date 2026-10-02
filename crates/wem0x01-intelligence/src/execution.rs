@@ -210,17 +210,18 @@ mod tests {
         broker.register(Box::new(crate::NoopAdapter));
 
         let state = StateStore::new(Default::default());
-        let mut context = ExecutionContext {
-            principal: &principal,
-            policy: &policy,
-            capabilities: &capabilities,
-            operations: &operations,
-            state: &state,
-            transactions: &mut transactions,
-        };
+        {
+            let mut context = ExecutionContext {
+                principal: &principal,
+                policy: &policy,
+                capabilities: &capabilities,
+                operations: &operations,
+                state: &state,
+                transactions: &mut transactions,
+            };
 
-        broker.execute(&tx, &mut context).await.unwrap();
-        drop(context);
+            broker.execute(&tx, &mut context).await.unwrap();
+        }
 
         assert_eq!(
             transactions.get("tx-1").unwrap().state,
