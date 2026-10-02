@@ -1,6 +1,6 @@
-# lem0x01 — Linux Environment Manager
+# wem0x01 — Linux Environment Manager
 
-**lem0x01** is a Rust-first, event-driven **Linux environment manager and Wayland session control plane**.
+**wem0x01** is a Rust-first, event-driven **Linux environment manager and Wayland session control plane**.
 
 It is not a Quickshell configuration and it is not a desktop shell. The project coordinates the pieces that make a modern Wayland desktop environment work together: compositor integration, user-session services, devices, media, policies, profiles, themes, lifecycle, automation and optional UI frontends.
 
@@ -9,7 +9,7 @@ Quickshell is currently one frontend. It is intentionally not the source of trut
 ## Architecture
 
 ```
-                         lem0x01 frontends
+                         wem0x01 frontends
              ┌──────────────┬──────────────┬──────────────┐
              │  Quickshell  │ Native Wayland│   CLI / TUI  │
              └──────────────┴───────┬──────┴──────────────┘
@@ -17,7 +17,7 @@ Quickshell is currently one frontend. It is intentionally not the source of trut
                              versioned protocol
                                     │
                     ┌───────────────▼────────────────┐
-                    │          lem0x01d               │
+                    │          wem0x01d               │
                     │   Rust control plane / daemon   │
                     │                                 │
                     │ state graph • event bus         │
@@ -56,12 +56,12 @@ The project does **not** force every UI to be Rust. Frontends can use the best t
 ## Current components
 
 ### Rust control plane
-- `lem0x01d` — user-session daemon.
-- `lem0x01ctl` — control CLI.
-- `lem0x01-core` — event bus and orchestration primitives.
-- `lem0x01-protocol` — stable, dependency-light protocol types.
-- `lem0x01-compositor` — compositor-neutral adapter boundary.
-- `lem0x01-platform` — Linux/D-Bus/session integration boundary.
+- `wem0x01d` — user-session daemon.
+- `wem0x01ctl` — control CLI.
+- `wem0x01-core` — event bus and orchestration primitives.
+- `wem0x01-protocol` — stable, dependency-light protocol types.
+- `wem0x01-compositor` — compositor-neutral adapter boundary.
+- `wem0x01-platform` — Linux/D-Bus/session integration boundary.
 
 ### Existing UI layer
 The existing Quickshell frontend provides:
@@ -75,26 +75,26 @@ The existing Quickshell frontend provides:
 - network, Bluetooth, audio and battery surfaces;
 - shared themes for Kitty, Fuzzel, Zellij and Neovim.
 
-These are being migrated from the old `ultimate-shell` identity into the lem0x01 frontend architecture.
+These are being migrated from the old `wem0x01` identity into the wem0x01 frontend architecture.
 
 ## Repository layout
 
 ```
 apps/
-  lem0x01d/             # control-plane daemon
-  lem0x01ctl/           # CLI
+  wem0x01d/             # control-plane daemon
+  wem0x01ctl/           # CLI
 
 crates/
-  lem0x01-core/         # state/event orchestration
-  lem0x01-protocol/     # versioned public protocol types
-  lem0x01-platform/     # Linux session + system services
-  lem0x01-compositor/   # Wayland/compositor adapters
+  wem0x01-core/         # state/event orchestration
+  wem0x01-protocol/     # versioned public protocol types
+  wem0x01-platform/     # Linux session + system services
+  wem0x01-compositor/   # Wayland/compositor adapters
 
 quickshell/              # optional UI frontend
 hypr/                    # Hyprland integration
 kitty/ fuzzel/ nvim/     # developer environment integrations
 themes/                  # shared visual tokens
-config/                  # lem0x01 configuration
+config/                  # wem0x01 configuration
 systemd/                 # user services
 docs/                    # architecture and design docs
 scripts/                 # installation/migration helpers
@@ -152,15 +152,15 @@ The current installer still installs the existing Quickshell frontend:
 For the Rust control plane:
 
     cargo build --release
-    install -Dm755 target/release/lem0x01d ~/.local/bin/lem0x01d
-    install -Dm755 target/release/lem0x01ctl ~/.local/bin/lem0x01ctl
+    install -Dm755 target/release/wem0x01d ~/.local/bin/wem0x01d
+    install -Dm755 target/release/wem0x01ctl ~/.local/bin/wem0x01ctl
 
 Then install the user service:
 
     mkdir -p ~/.config/systemd/user
-    cp systemd/lem0x01.service ~/.config/systemd/user/
+    cp systemd/wem0x01.service ~/.config/systemd/user/
     systemctl --user daemon-reload
-    systemctl --user enable --now lem0x01.service
+    systemctl --user enable --now wem0x01.service
 
 ## Development
 
@@ -172,15 +172,15 @@ The Quickshell frontend can be run separately while the Rust control plane evolv
 
 ## Themes
 
-    ~/.config/ultimate-shell/theme-sync caelestia
-    ~/.config/ultimate-shell/theme-sync impasto
-    ~/.config/ultimate-shell/theme-sync ultimate
+    ~/.config/wem0x01/theme-sync caelestia
+    ~/.config/wem0x01/theme-sync impasto
+    ~/.config/wem0x01/theme-sync ultimate
 
-Caelestia and Impasto are visual references only. lem0x01 is a clean-room implementation and does not copy their source code.
+Caelestia and Impasto are visual references only. wem0x01 is a clean-room implementation and does not copy their source code.
 
 ## Security model
 
-lem0x01 is designed to run as a **user service**, not as root.
+wem0x01 is designed to run as a **user service**, not as root.
 
 The architecture favors:
 - explicit capability grants;
@@ -195,10 +195,17 @@ See `SECURITY.md` and `docs/architecture.md`.
 
 ## Project identity
 
-The project is evolving from its original Quickshell prototype into a broader Linux environment manager. During the v8 migration, legacy paths such as `ultimate-shell` remain temporarily for compatibility.
+The project is evolving from its original Quickshell prototype into a broader Linux environment manager. During the v8 migration, legacy paths such as `wem0x01` remain temporarily for compatibility.
 
 The target project name is:
 
-**lem0x01 — Linux Environment Manager**
+**wem0x01 — Linux Environment Manager**
 
 See `docs/architecture.md` for the long-term architecture.
+
+
+## Architecture
+
+The project is a Rust-first control plane, not a Quickshell configuration. The daemon owns state, policy and orchestration; Quickshell is an optional frontend.
+
+See [docs/architecture.md](docs/architecture.md) and [docs/ROADMAP.md](docs/ROADMAP.md).
