@@ -9,5 +9,6 @@ anyhow.workspace = true
 async-trait.workspace = true
 wem0x01-protocol = { path = "../wem0x01-protocol" }
 serde.workspace = true
+thiserror.workspace = true
 tokio.workspace = true
 tracing.workspace = true
