@@ -5,7 +5,21 @@ on:
   pull_request:
 
 jobs:
-  sanity:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Check
+        run: cargo check --workspace --all-targets
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  shell:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,7 +27,8 @@ jobs:
         run: |
           test -f LICENSE
           test -f README.md
-          test -f CONTRIBUTING.md
+          test -f Cargo.toml
+          test -f docs/architecture.md
           test -f quickshell/shell.qml
           test -f quickshell/services/qmldir
           test -f nvim/colors/ultimate.lua
