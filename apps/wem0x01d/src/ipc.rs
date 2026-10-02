@@ -178,9 +178,7 @@ fn snapshot_to_protocol(state: &wem0x01_core::EnvironmentState) -> EnvironmentSn
 
 #[cfg(unix)]
 fn peer_uid(stream: &UnixStream) -> anyhow::Result<u32> {
-    use std::os::unix::net::UnixStream as StdUnixStream;
-    let std_stream = stream.try_clone()?.into_std()?;
-    Ok(std_stream.peer_cred()?.uid())
+    Ok(stream.peer_cred()?.uid())
 }
 
 fn set_socket_mode(path: &Path, mode: u32) -> anyhow::Result<()> {
