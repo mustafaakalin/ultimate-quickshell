@@ -29,7 +29,7 @@ pub use gateway::{ToolCall, ToolError, ToolGateway, ToolHandler, ToolResult};
 pub use memory::{MemoryEntry, MemoryKind, MemoryStore, MemoryTrust};
 pub use memory_repo::{MemoryRecord, MemoryRepository};
 pub use mcp::{McpServerDescriptor, McpTransport};
-pub use orchestrator::{AgentRun, Delegation, RunState};
+pub use orchestrator::{AgentOrchestrator, AgentRun, ApprovalScope, Delegation, OrchestratorError, RunState};
 pub use evaluation::{EvaluationReport, EvaluationSuite};
 pub use firewall::{ContextFirewall, ContextItem, SanitizedContext, TrustLabel};
 pub use policy::{AiPolicy, ContextDisposition};
