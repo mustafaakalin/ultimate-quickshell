@@ -8,7 +8,7 @@ use tokio::{
 use tracing::{info, warn};
 use wem0x01_core::{CapabilityRegistry, PolicyEngine, Principal, StateStore};
 use wem0x01_protocol::{
-    Command, EnvironmentSnapshot, IpcHello, IpcRequest, IpcResponse, IPC_MAX_FRAME,
+    ClientKind, Command, EnvironmentSnapshot, IpcHello, IpcRequest, IpcResponse, IPC_MAX_FRAME,
     PROTOCOL_VERSION,
 };
 
@@ -152,7 +152,12 @@ fn authenticate_hello(
         );
     }
 
-    let principal = Principal::frontend(hello.client.clone());
+    let principal = match hello.kind.unwrap_or(ClientKind::Cli) {
+        ClientKind::Ui | ClientKind::Cli => Principal::frontend(hello.client.clone()),
+        ClientKind::Agent => Principal::agent(hello.client.clone()),
+        ClientKind::Plugin => Principal::plugin(hello.client.clone(), [wem0x01_core::Effect::Read]),
+        ClientKind::Automation => Principal::plugin(hello.client.clone(), [wem0x01_core::Effect::Read]),
+    };
     for capability in &hello.requested_capabilities {
         capabilities.authorize(policy, &principal, capability)?;
     }
