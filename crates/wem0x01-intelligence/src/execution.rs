@@ -30,6 +30,7 @@ pub trait ActionAdapter: Send + Sync {
 }
 
 #[derive(Default)]
+/// Executes only registered typed operations and verifies them before commit.
 pub struct ExecutionBroker {
     adapters: BTreeMap<String, Box<dyn ActionAdapter>>,
 }
