@@ -39,6 +39,12 @@ pub struct Supervisor {
     tasks: Vec<JoinHandle<()>>,
 }
 
+impl Default for Supervisor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Supervisor {
     pub fn new() -> Self {
         let (shutdown, _) = watch::channel(false);
