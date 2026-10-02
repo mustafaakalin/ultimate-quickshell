@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use std::collections::BTreeMap;
 
 use wem0x01_core::{CapabilityRegistry, PolicyEngine, Principal, Transaction, TransactionAction, TransactionEngine, TransactionError};
+use crate::OperationRegistry;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ExecutionError {
@@ -48,11 +49,24 @@ impl ExecutionBroker {
         principal: &Principal,
         policy: &PolicyEngine,
         capabilities: &CapabilityRegistry,
+        operations: &OperationRegistry,
         transactions: &mut TransactionEngine,
     ) -> Result<(), ExecutionError> {
         for action in &tx.actions {
             capabilities.authorize(policy, principal, &action.capability)
                 .map_err(|_| ExecutionError::CapabilityDenied(action.capability.clone()))?;
+            let spec = operations.get(&action.operation)
+                .ok_or_else(|| ExecutionError::AdapterNotFound(action.operation.clone()))?;
+            if spec.capability != action.capability || spec.reversible != action.reversible {
+                return Err(ExecutionError::Adapter(format!(
+                    "operation contract mismatch: {}", action.operation
+                )));
+            }
+            if action.reversible && spec.rollback_operation.as_deref() != action.rollback_operation.as_deref() {
+                return Err(ExecutionError::Adapter(format!(
+                    "rollback contract mismatch: {}", action.operation
+                )));
+            }
         }
 
         transactions.begin(&tx.id)?;
@@ -136,9 +150,17 @@ mod tests {
         transactions.validate("tx-1", &principal, &policy, &capabilities).unwrap();
 
         let mut broker = ExecutionBroker::default();
+        let mut operations = OperationRegistry::default();
+        operations.register(crate::OperationSpec {
+            id: "test.noop.reset".into(), version: 1, capability: "test.noop".into(),
+            effect: crate::OperationEffect::Control, input_schema: "none".into(), output_schema: "ack".into(),
+            timeout_ms: 1000, max_input_bytes: 1024, max_output_bytes: 1024,
+            idempotency: crate::Idempotency::Idempotent, reversible: true,
+            rollback_operation: Some("test.noop.rollback".into()), verification_operation: None,
+        }).unwrap();
         broker.register(Box::new(crate::NoopAdapter));
 
-        broker.execute(&tx, &principal, &policy, &capabilities, &mut transactions).await.unwrap();
+        broker.execute(&tx, &principal, &policy, &capabilities, &operations, &mut transactions).await.unwrap();
 
         assert_eq!(transactions.get("tx-1").unwrap().state, TransactionState::Committed);
     }
