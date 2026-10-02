@@ -114,3 +114,46 @@ Higher layers override lower layers without mutating source configuration.
 ## Long-term goal
 
 wem0x01 is a reusable environment platform, not a monolithic desktop shell. The same logical environment should work across different compositors, frontends, themes, automation systems and hardware profiles.
+
+
+## Next-generation control-plane model
+
+wem0x01 is organized into five cooperating planes:
+
+1. State plane — normalized immutable state and bounded event journal.
+2. Policy plane — identity, capabilities, authorization and safety policy.
+3. Execution plane — supervised actors and typed adapters for compositor/Linux services.
+4. Transaction plane — checkpoints, previews, apply/verify/rollback for mutating operations.
+5. Intelligence plane — diagnostics, evidence graphs and optional AI agents.
+
+The planes are deliberately separated. An AI failure cannot corrupt state. A compositor adapter cannot bypass policy. A frontend cannot directly execute effects.
+
+### Incident and evidence model
+
+Operational failures become structured incidents rather than unstructured log dumps. The daemon maintains a bounded flight recorder and can assemble redacted evidence bundles for diagnostics.
+
+This enables:
+
+event -> incident -> evidence -> diagnosis -> plan -> approval -> transaction -> verification
+
+### AI agent boundary
+
+AI agents are ordinary protocol clients with additional capability restrictions. They may investigate automatically, but mutation flows through the same capability broker used by human clients.
+
+No agent receives ambient shell access.
+
+### Transaction semantics
+
+A mutation is successful only when its postconditions are verified. A transaction can therefore be previewed, approved, applied, verified and rolled back.
+
+This is especially important for AI-generated changes.
+
+### Event journal and replay
+
+The event bus should eventually have a bounded journal with sequence numbers and retention policies. A diagnostic session can replay the relevant event window into a test reducer without touching the real desktop.
+
+This gives wem0x01 a path toward deterministic reproduction of otherwise intermittent desktop failures.
+
+### Agent interoperability
+
+The intelligence plane should support local models, remote LLMs, coding agents and MCP clients without making any one provider part of the core. Skills are versioned documents describing evidence requirements, allowed tools, safety constraints and verification strategy.
