@@ -5,7 +5,6 @@
 //! still crosses the core capability broker and transaction boundary.
 
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use thiserror::Error;
 
 pub mod agent;
