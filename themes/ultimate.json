@@ -1,0 +1,16 @@
+{
+  "name": "ultimate-aurora",
+  "background": "#0f1117",
+  "surface": "#171a22",
+  "surface2": "#222632",
+  "foreground": "#f2f3f7",
+  "muted": "#aeb4c2",
+  "accent": "#b9c7ff",
+  "accent_strong": "#8fa7ff",
+  "red": "#ffb4ab",
+  "yellow": "#ffd18a",
+  "green": "#a8e6cf",
+  "cyan": "#9fd7ff",
+  "blue": "#9fb5ff",
+  "magenta": "#d8b4ff"
+}
