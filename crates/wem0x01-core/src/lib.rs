@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, sync::Arc};
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::{RwLock, broadcast};
 
 pub mod actor;
 pub mod checkpoint;
@@ -14,10 +14,19 @@ pub mod transaction;
 pub use actor::{Actor, ActorContext, RestartPolicy, Supervisor};
 pub use checkpoint::{Checkpoint, CheckpointError, CheckpointStore};
 pub use journal::{IncidentJournal, JournalEntry};
-pub use plugin::{BuiltInPlugin, PluginContext, PluginError, PluginKind, PluginManifest, PluginRecord, PluginRegistry};
+pub use plugin::{
+    BuiltInPlugin, PluginContext, PluginError, PluginKind, PluginManifest, PluginRecord,
+    PluginRegistry,
+};
 pub use reducer::StateReducer;
-pub use transaction::{Postcondition, Precondition, Transaction, TransactionAction, TransactionEngine, TransactionError, TransactionState};
-use wem0x01_protocol::{AgentIntent, Capability, Command, CompositorEvent, EnvironmentSnapshot, Incident, TransactionPlan};
+pub use transaction::{
+    Postcondition, Precondition, Transaction, TransactionAction, TransactionEngine,
+    TransactionError, TransactionState,
+};
+use wem0x01_protocol::{
+    AgentIntent, Capability, Command, CompositorEvent, EnvironmentSnapshot, Incident,
+    TransactionPlan,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct EnvironmentState {
@@ -56,15 +65,24 @@ pub struct Principal {
 
 impl Principal {
     pub fn frontend(id: impl Into<String>) -> Self {
-        Self { id: id.into(), effects: HashSet::from([Effect::Read, Effect::Control]) }
+        Self {
+            id: id.into(),
+            effects: HashSet::from([Effect::Read, Effect::Control]),
+        }
     }
 
     pub fn plugin(id: impl Into<String>, effects: impl IntoIterator<Item = Effect>) -> Self {
-        Self { id: id.into(), effects: effects.into_iter().collect() }
+        Self {
+            id: id.into(),
+            effects: effects.into_iter().collect(),
+        }
     }
 
     pub fn agent(id: impl Into<String>) -> Self {
-        Self { id: id.into(), effects: HashSet::from([Effect::Read]) }
+        Self {
+            id: id.into(),
+            effects: HashSet::from([Effect::Read]),
+        }
     }
 }
 
@@ -90,15 +108,25 @@ pub struct CapabilityRegistry {
 impl CapabilityRegistry {
     pub fn register(&mut self, id: impl Into<String>, effect: Effect) {
         let id = id.into();
-        self.descriptors.insert(id.clone(), CapabilityDescriptor { id, effect });
+        self.descriptors
+            .insert(id.clone(), CapabilityDescriptor { id, effect });
     }
 
     pub fn effect_for(&self, id: &str) -> Option<Effect> {
         self.descriptors.get(id).map(|descriptor| descriptor.effect)
     }
 
-    pub fn authorize(&self, policy: &PolicyEngine, principal: &Principal, capability: &str) -> Result<(), PolicyError> {
-        let effect = self.effect_for(capability).ok_or_else(|| PolicyError::UnknownCapability { capability: capability.to_owned() })?;
+    pub fn authorize(
+        &self,
+        policy: &PolicyEngine,
+        principal: &Principal,
+        capability: &str,
+    ) -> Result<(), PolicyError> {
+        let effect = self
+            .effect_for(capability)
+            .ok_or_else(|| PolicyError::UnknownCapability {
+                capability: capability.to_owned(),
+            })?;
         policy.authorize(principal, effect)
     }
 }
@@ -111,7 +139,10 @@ impl PolicyEngine {
         if principal.effects.contains(&effect) {
             Ok(())
         } else {
-            Err(PolicyError::Denied { principal: principal.id.clone(), effect })
+            Err(PolicyError::Denied {
+                principal: principal.id.clone(),
+                effect,
+            })
         }
     }
 }
@@ -121,9 +152,15 @@ pub struct StateStore {
 }
 
 impl StateStore {
-    pub fn new(initial: EnvironmentState) -> Self { Self { state: RwLock::new(Arc::new(initial)) } }
+    pub fn new(initial: EnvironmentState) -> Self {
+        Self {
+            state: RwLock::new(Arc::new(initial)),
+        }
+    }
 
-    pub async fn snapshot(&self) -> Arc<EnvironmentState> { self.state.read().await.clone() }
+    pub async fn snapshot(&self) -> Arc<EnvironmentState> {
+        self.state.read().await.clone()
+    }
 
     pub async fn replace(&self, mut next: EnvironmentState) -> Arc<EnvironmentState> {
         let current = self.snapshot().await;
@@ -144,8 +181,12 @@ impl EventBus {
         Self { tx }
     }
 
-    pub fn publish(&self, event: EnvironmentEvent) { let _ = self.tx.send(event); }
-    pub fn subscribe(&self) -> broadcast::Receiver<EnvironmentEvent> { self.tx.subscribe() }
+    pub fn publish(&self, event: EnvironmentEvent) {
+        let _ = self.tx.send(event);
+    }
+    pub fn subscribe(&self) -> broadcast::Receiver<EnvironmentEvent> {
+        self.tx.subscribe()
+    }
 }
 
 #[async_trait]

@@ -79,7 +79,9 @@ impl CheckpointStore {
     }
 
     pub fn find_by_transaction(&self, transaction_id: &str) -> Option<&Checkpoint> {
-        self.checkpoints.values().find(|cp| cp.transaction_id == transaction_id)
+        self.checkpoints
+            .values()
+            .find(|cp| cp.transaction_id == transaction_id)
     }
 
     pub fn len(&self) -> usize {
@@ -94,7 +96,9 @@ mod tests {
     #[test]
     fn checkpoint_records_state_and_resources() {
         let mut checkpoint = Checkpoint::new("cp-1", "tx-1", 42, "sha256:test");
-        checkpoint.record_resource("compositor.workspace", "3").unwrap();
+        checkpoint
+            .record_resource("compositor.workspace", "3")
+            .unwrap();
 
         let mut store = CheckpointStore::default();
         store.insert(checkpoint).unwrap();

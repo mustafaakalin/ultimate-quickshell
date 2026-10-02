@@ -8,7 +8,13 @@ pub const PROTOCOL_VERSION: u16 = 1;
 /// must not trust this field as process identity; it is a protocol-level hint
 /// until distinct principals/sockets are introduced.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum ClientKind { Ui, Cli, Agent, Plugin, Automation }
+pub enum ClientKind {
+    Ui,
+    Cli,
+    Agent,
+    Plugin,
+    Automation,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Capability {
@@ -40,7 +46,6 @@ pub struct CompositorEvent {
     pub name: String,
     pub data: String,
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum IncidentSeverity {
@@ -83,7 +88,6 @@ pub struct TransactionPlan {
     pub actions: Vec<TransactionAction>,
     pub requires_approval: bool,
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IpcHello {

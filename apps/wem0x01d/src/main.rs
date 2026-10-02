@@ -1,7 +1,10 @@
 use std::sync::Arc;
 use tracing::{error, info};
 use wem0x01_compositor::detection::compositor_hint;
-use wem0x01_core::{EnvironmentEvent, EnvironmentState, EventBus, CapabilityRegistry, Effect, PolicyEngine, Principal, StateStore};
+use wem0x01_core::{
+    CapabilityRegistry, Effect, EnvironmentEvent, EnvironmentState, EventBus, PolicyEngine,
+    Principal, StateStore,
+};
 use wem0x01_protocol::Capability;
 
 mod ipc;
@@ -30,8 +33,14 @@ async fn main() -> anyhow::Result<()> {
         session_id: std::env::var("XDG_SESSION_ID").unwrap_or_else(|_| "unknown".into()),
         profile: "default".into(),
         capabilities: vec![
-            Capability { id: "environment.snapshot".into(), available: true },
-            Capability { id: "compositor.adapter".into(), available: true },
+            Capability {
+                id: "environment.snapshot".into(),
+                available: true,
+            },
+            Capability {
+                id: "compositor.adapter".into(),
+                available: true,
+            },
         ],
     };
 
@@ -44,7 +53,10 @@ async fn main() -> anyhow::Result<()> {
         if let Ok(events) = wem0x01_compositor::hyprland::HyprlandEvents::from_environment() {
             let tx = bus;
             tokio::spawn(async move {
-                if let Err(error) = events.run(|event| tx.publish(EnvironmentEvent::Compositor(event))).await {
+                if let Err(error) = events
+                    .run(|event| tx.publish(EnvironmentEvent::Compositor(event)))
+                    .await
+                {
                     error!(%error, "Hyprland event actor stopped");
                 }
             });

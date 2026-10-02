@@ -1,7 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AgentKind { Local, Cloud, Hybrid, Deterministic }
+pub enum AgentKind {
+    Local,
+    Cloud,
+    Hybrid,
+    Deterministic,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentRuntime {
@@ -21,7 +26,14 @@ pub struct AgentBudget {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AgentRole { Root, Specialist, Reviewer, Planner, Executor, Diagnostician }
+pub enum AgentRole {
+    Root,
+    Specialist,
+    Reviewer,
+    Planner,
+    Executor,
+    Diagnostician,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentDescriptor {

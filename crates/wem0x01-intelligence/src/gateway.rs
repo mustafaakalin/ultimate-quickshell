@@ -1,6 +1,6 @@
+use crate::{CapabilityRegistry, PolicyEngine, Principal};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use crate::{CapabilityRegistry, PolicyEngine, Principal};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolCall {
@@ -43,7 +43,11 @@ pub struct ToolGateway {
 
 impl ToolGateway {
     pub fn new(max_input_bytes: usize, max_output_bytes: usize) -> Self {
-        Self { handlers: BTreeMap::new(), max_input_bytes, max_output_bytes }
+        Self {
+            handlers: BTreeMap::new(),
+            max_input_bytes,
+            max_output_bytes,
+        }
     }
 
     pub fn register(&mut self, id: impl Into<String>, handler: Box<dyn ToolHandler>) {
@@ -58,12 +62,24 @@ impl ToolGateway {
         capabilities: &CapabilityRegistry,
         capability: &str,
     ) -> Result<ToolResult, ToolError> {
-        if request.input.len() > self.max_input_bytes { return Err(ToolError::InputTooLarge); }
-        capabilities.authorize(policy, principal, capability)
+        if request.input.len() > self.max_input_bytes {
+            return Err(ToolError::InputTooLarge);
+        }
+        capabilities
+            .authorize(policy, principal, capability)
             .map_err(|_| ToolError::Denied(capability.into()))?;
-        let handler = self.handlers.get(&request.tool).ok_or_else(|| ToolError::NotFound(request.tool.clone()))?;
+        let handler = self
+            .handlers
+            .get(&request.tool)
+            .ok_or_else(|| ToolError::NotFound(request.tool.clone()))?;
         let output = handler.call(&request.input).await?;
-        if output.len() > self.max_output_bytes { return Err(ToolError::OutputTooLarge); }
-        Ok(ToolResult { call_id: request.id.clone(), ok: true, output })
+        if output.len() > self.max_output_bytes {
+            return Err(ToolError::OutputTooLarge);
+        }
+        Ok(ToolResult {
+            call_id: request.id.clone(),
+            ok: true,
+            output,
+        })
     }
 }

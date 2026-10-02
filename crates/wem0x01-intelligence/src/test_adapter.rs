@@ -1,5 +1,5 @@
-use async_trait::async_trait;
 use super::{ActionAdapter, ExecutionError};
+use async_trait::async_trait;
 use wem0x01_core::TransactionAction;
 
 /// A deliberately inert adapter used as the first integration-test boundary.
@@ -9,7 +9,9 @@ pub struct NoopAdapter;
 
 #[async_trait]
 impl ActionAdapter for NoopAdapter {
-    fn operation_prefix(&self) -> &str { "test.noop." }
+    fn operation_prefix(&self) -> &str {
+        "test.noop."
+    }
 
     async fn execute(&self, _action: &TransactionAction) -> Result<(), ExecutionError> {
         Ok(())

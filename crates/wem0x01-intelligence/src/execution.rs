@@ -36,7 +36,8 @@ pub struct ExecutionBroker {
 
 impl ExecutionBroker {
     pub fn register(&mut self, adapter: Box<dyn ActionAdapter>) {
-        self.adapters.insert(adapter.operation_prefix().to_owned(), adapter);
+        self.adapters
+            .insert(adapter.operation_prefix().to_owned(), adapter);
     }
 
     fn adapter_for(&self, operation: &str) -> Option<&dyn ActionAdapter> {
@@ -136,7 +137,6 @@ impl ExecutionBroker {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -170,7 +170,9 @@ mod tests {
 
         let mut transactions = TransactionEngine::default();
         transactions.insert(tx.clone());
-        transactions.validate("tx-1", &principal, &policy, &capabilities).unwrap();
+        transactions
+            .validate("tx-1", &principal, &policy, &capabilities)
+            .unwrap();
 
         let mut broker = ExecutionBroker::default();
         let mut operations = OperationRegistry::default();
@@ -205,6 +207,9 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(transactions.get("tx-1").unwrap().state, TransactionState::Committed);
+        assert_eq!(
+            transactions.get("tx-1").unwrap().state,
+            TransactionState::Committed
+        );
     }
 }

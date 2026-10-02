@@ -12,7 +12,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::{CapabilityRegistry, PolicyEngine, Principal};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum PluginKind { BuiltIn, External }
+pub enum PluginKind {
+    BuiltIn,
+    External,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PluginManifest {
@@ -27,9 +30,15 @@ pub struct PluginManifest {
 
 impl PluginManifest {
     pub fn validate(&self) -> Result<(), PluginError> {
-        if self.id.is_empty() || self.id.len() > 128 { return Err(PluginError::InvalidId); }
-        if self.api_version == 0 { return Err(PluginError::UnsupportedApi); }
-        if self.capabilities.iter().any(|c| c.is_empty()) { return Err(PluginError::InvalidCapability); }
+        if self.id.is_empty() || self.id.len() > 128 {
+            return Err(PluginError::InvalidId);
+        }
+        if self.api_version == 0 {
+            return Err(PluginError::UnsupportedApi);
+        }
+        if self.capabilities.iter().any(|c| c.is_empty()) {
+            return Err(PluginError::InvalidCapability);
+        }
         Ok(())
     }
 }
@@ -53,8 +62,12 @@ pub enum PluginError {
 #[async_trait]
 pub trait BuiltInPlugin: Send + Sync {
     fn manifest(&self) -> &PluginManifest;
-    async fn start(&self, _context: PluginContext) -> Result<(), PluginError> { Ok(()) }
-    async fn stop(&self) -> Result<(), PluginError> { Ok(()) }
+    async fn start(&self, _context: PluginContext) -> Result<(), PluginError> {
+        Ok(())
+    }
+    async fn stop(&self) -> Result<(), PluginError> {
+        Ok(())
+    }
 }
 
 #[derive(Clone)]
@@ -66,7 +79,8 @@ pub struct PluginContext {
 
 impl PluginContext {
     pub fn authorize(&self, capability: &str) -> Result<(), PluginError> {
-        self.capabilities.authorize(&self.policy, &self.principal, capability)
+        self.capabilities
+            .authorize(&self.policy, &self.principal, capability)
             .map_err(|_| PluginError::CapabilityDenied(capability.to_owned()))
     }
 }
@@ -84,9 +98,15 @@ pub struct PluginRegistry {
 }
 
 impl PluginRegistry {
-    pub fn register(&mut self, manifest: PluginManifest, capabilities: &CapabilityRegistry) -> Result<(), PluginError> {
+    pub fn register(
+        &mut self,
+        manifest: PluginManifest,
+        capabilities: &CapabilityRegistry,
+    ) -> Result<(), PluginError> {
         manifest.validate()?;
-        if self.records.contains_key(&manifest.id) { return Err(PluginError::AlreadyRegistered(manifest.id)); }
+        if self.records.contains_key(&manifest.id) {
+            return Err(PluginError::AlreadyRegistered(manifest.id));
+        }
 
         for capability in &manifest.capabilities {
             if capabilities.effect_for(capability).is_none() {
@@ -96,16 +116,32 @@ impl PluginRegistry {
 
         let id = manifest.id.clone();
         for capability in &manifest.capabilities {
-            self.capability_index.entry(capability.clone()).or_default().insert(id.clone());
+            self.capability_index
+                .entry(capability.clone())
+                .or_default()
+                .insert(id.clone());
         }
-        self.records.insert(id, PluginRecord { manifest, enabled: true });
+        self.records.insert(
+            id,
+            PluginRecord {
+                manifest,
+                enabled: true,
+            },
+        );
         Ok(())
     }
 
-    pub fn get(&self, id: &str) -> Option<&PluginRecord> { self.records.get(id) }
-    pub fn iter(&self) -> impl Iterator<Item = &PluginRecord> { self.records.values() }
+    pub fn get(&self, id: &str) -> Option<&PluginRecord> {
+        self.records.get(id)
+    }
+    pub fn iter(&self) -> impl Iterator<Item = &PluginRecord> {
+        self.records.values()
+    }
     pub fn providers(&self, capability: &str) -> impl Iterator<Item = &String> {
-        self.capability_index.get(capability).into_iter().flat_map(|ids| ids.iter())
+        self.capability_index
+            .get(capability)
+            .into_iter()
+            .flat_map(|ids| ids.iter())
     }
 }
 
@@ -124,11 +160,17 @@ mod tests {
     #[test]
     fn rejects_unknown_capability() {
         let manifest = PluginManifest {
-            id: "example".into(), version: "0.1.0".into(), api_version: 1,
-            kind: PluginKind::BuiltIn, capabilities: vec!["missing".into()],
-            provides: vec![], dependencies: vec![],
+            id: "example".into(),
+            version: "0.1.0".into(),
+            api_version: 1,
+            kind: PluginKind::BuiltIn,
+            capabilities: vec!["missing".into()],
+            provides: vec![],
+            dependencies: vec![],
         };
-        let error = PluginRegistry::default().register(manifest, &registry()).unwrap_err();
+        let error = PluginRegistry::default()
+            .register(manifest, &registry())
+            .unwrap_err();
         assert!(matches!(error, PluginError::UnknownCapability(_)));
     }
 
@@ -136,9 +178,13 @@ mod tests {
     fn indexes_capability_provider() {
         let mut plugins = PluginRegistry::default();
         let manifest = PluginManifest {
-            id: "snapshot-ui".into(), version: "0.1.0".into(), api_version: 1,
-            kind: PluginKind::BuiltIn, capabilities: vec!["environment.snapshot".into()],
-            provides: vec!["ui.surface".into()], dependencies: vec![],
+            id: "snapshot-ui".into(),
+            version: "0.1.0".into(),
+            api_version: 1,
+            kind: PluginKind::BuiltIn,
+            capabilities: vec!["environment.snapshot".into()],
+            provides: vec!["ui.surface".into()],
+            dependencies: vec![],
         };
         plugins.register(manifest, &registry()).unwrap();
         assert_eq!(plugins.providers("environment.snapshot").count(), 1);

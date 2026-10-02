@@ -1,7 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum SpecState { Draft, Validated, Approved, Active, Deprecated }
+pub enum SpecState {
+    Draft,
+    Validated,
+    Approved,
+    Active,
+    Deprecated,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SpecInvariant {

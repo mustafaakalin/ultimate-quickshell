@@ -1,7 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ToolEffect { Read, Mutate, Execute, Privileged, ExternalNetwork }
+pub enum ToolEffect {
+    Read,
+    Mutate,
+    Execute,
+    Privileged,
+    ExternalNetwork,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolDescriptor {

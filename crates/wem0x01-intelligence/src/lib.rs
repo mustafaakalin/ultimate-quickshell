@@ -8,44 +8,48 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 pub mod agent;
-pub mod graph;
-pub mod gateway;
-pub mod memory;
-pub mod memory_repo;
-pub mod orchestrator;
-pub mod operation;
+pub mod compositor_adapter;
 pub mod evaluation;
 pub mod execution;
-pub mod compositor_adapter;
 pub mod firewall;
-pub mod policy;
-pub mod trace;
+pub mod gateway;
+pub mod graph;
 pub mod mcp;
+pub mod memory;
+pub mod memory_repo;
+pub mod operation;
+pub mod orchestrator;
+pub mod policy;
 pub mod registry;
 pub mod skill;
 pub mod spec;
-pub mod tool;
 pub mod test_adapter;
+pub mod tool;
+pub mod trace;
 
 pub use agent::{AgentBudget, AgentDescriptor, AgentKind, AgentRole, AgentRuntime};
-pub use graph::{AssetKind, GraphEdge, GraphNode, GovernanceGraph, Relation};
-pub use gateway::{ToolCall, ToolError, ToolGateway, ToolHandler, ToolResult};
-pub use memory::{MemoryEntry, MemoryKind, MemoryStore, MemoryTrust};
-pub use memory_repo::{MemoryRecord, MemoryRepository};
-pub use mcp::{McpServerDescriptor, McpTransport};
-pub use orchestrator::{AgentOrchestrator, AgentRun, ApprovalScope, Delegation, OrchestratorError, RunState};
-pub use operation::{Idempotency, OperationEffect, OperationRegistry, OperationSpec, OperationSpecError};
+pub use compositor_adapter::{CompositorAdapter, WorkspaceFocus};
 pub use evaluation::{EvaluationReport, EvaluationSuite};
 pub use execution::{ActionAdapter, ExecutionBroker, ExecutionError};
-pub use compositor_adapter::{CompositorAdapter, WorkspaceFocus};
-pub use test_adapter::NoopAdapter;
 pub use firewall::{ContextFirewall, ContextItem, SanitizedContext, TrustLabel};
+pub use gateway::{ToolCall, ToolError, ToolGateway, ToolHandler, ToolResult};
+pub use graph::{AssetKind, GovernanceGraph, GraphEdge, GraphNode, Relation};
+pub use mcp::{McpServerDescriptor, McpTransport};
+pub use memory::{MemoryEntry, MemoryKind, MemoryStore, MemoryTrust};
+pub use memory_repo::{MemoryRecord, MemoryRepository};
+pub use operation::{
+    Idempotency, OperationEffect, OperationRegistry, OperationSpec, OperationSpecError,
+};
+pub use orchestrator::{
+    AgentOrchestrator, AgentRun, ApprovalScope, Delegation, OrchestratorError, RunState,
+};
 pub use policy::{AiPolicy, ContextDisposition};
-pub use trace::{Trace, TraceEvent};
 pub use registry::{AssetId, AssetRegistry, AssetRevision};
 pub use skill::{SkillDescriptor, SkillStep};
 pub use spec::{Spec, SpecInvariant, SpecState};
+pub use test_adapter::NoopAdapter;
 pub use tool::{ToolDescriptor, ToolEffect};
+pub use trace::{Trace, TraceEvent};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EvidenceRef {

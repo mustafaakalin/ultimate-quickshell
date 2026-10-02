@@ -27,7 +27,11 @@ impl Default for RestartPolicy {
 
 #[async_trait]
 pub trait Actor: Send + Sync + 'static {
-    async fn run(&mut self, context: ActorContext, shutdown: watch::Receiver<bool>) -> anyhow::Result<()>;
+    async fn run(
+        &mut self,
+        context: ActorContext,
+        shutdown: watch::Receiver<bool>,
+    ) -> anyhow::Result<()>;
 }
 
 pub struct Supervisor {
@@ -38,7 +42,10 @@ pub struct Supervisor {
 impl Supervisor {
     pub fn new() -> Self {
         let (shutdown, _) = watch::channel(false);
-        Self { shutdown, tasks: Vec::new() }
+        Self {
+            shutdown,
+            tasks: Vec::new(),
+        }
     }
 
     pub fn spawn<A>(&mut self, name: impl Into<String>, mut actor: A, policy: RestartPolicy)
@@ -76,7 +83,10 @@ impl Supervisor {
 
                 let exponent = restart_count.min(6);
                 let factor = 1u32 << exponent;
-                let delay = policy.base_delay.saturating_mul(factor).min(policy.max_delay);
+                let delay = policy
+                    .base_delay
+                    .saturating_mul(factor)
+                    .min(policy.max_delay);
                 restart_count = restart_count.saturating_add(1);
 
                 tokio::select! {

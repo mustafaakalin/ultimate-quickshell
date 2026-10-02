@@ -1,7 +1,16 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum RunState { Planned, AwaitingApproval, Running, Verifying, Committed, RolledBack, Failed, Cancelled }
+pub enum RunState {
+    Planned,
+    AwaitingApproval,
+    Running,
+    Verifying,
+    Committed,
+    RolledBack,
+    Failed,
+    Cancelled,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Delegation {
@@ -27,7 +36,9 @@ pub struct AgentRun {
 
 impl AgentRun {
     pub fn can_call_tool(&self, tool: &str) -> bool {
-        self.delegations.iter().any(|d| d.allowed_tools.iter().any(|t| t == tool))
+        self.delegations
+            .iter()
+            .any(|d| d.allowed_tools.iter().any(|t| t == tool))
             || self.delegations.is_empty()
     }
 }

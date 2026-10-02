@@ -15,15 +15,21 @@ pub struct CompositorAdapter {
 
 impl CompositorAdapter {
     pub fn new(backend: impl Into<String>) -> Self {
-        Self { backend: backend.into() }
+        Self {
+            backend: backend.into(),
+        }
     }
 
-    pub fn backend(&self) -> &str { &self.backend }
+    pub fn backend(&self) -> &str {
+        &self.backend
+    }
 }
 
 #[async_trait]
 impl ActionAdapter for CompositorAdapter {
-    fn operation_prefix(&self) -> &str { "compositor.workspace." }
+    fn operation_prefix(&self) -> &str {
+        "compositor.workspace."
+    }
 
     async fn execute(&self, action: &TransactionAction) -> Result<(), ExecutionError> {
         match action.operation.as_str() {

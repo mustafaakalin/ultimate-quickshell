@@ -1,7 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum McpTransport { Stdio, UnixSocket, Http, Sse }
+pub enum McpTransport {
+    Stdio,
+    UnixSocket,
+    Http,
+    Sse,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct McpServerDescriptor {

@@ -1,6 +1,6 @@
+use crate::IntelligenceError;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use crate::IntelligenceError;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct AssetId(pub String);
@@ -22,12 +22,24 @@ impl<T> AssetRegistry<T> {
         if self.assets.contains_key(&id) {
             return Err(IntelligenceError::AssetExists(id.0));
         }
-        self.revisions.insert(id.clone(), AssetRevision { revision: 1, digest: None });
+        self.revisions.insert(
+            id.clone(),
+            AssetRevision {
+                revision: 1,
+                digest: None,
+            },
+        );
         self.assets.insert(id, value);
         Ok(())
     }
 
-    pub fn get(&self, id: &AssetId) -> Option<&T> { self.assets.get(id) }
-    pub fn revision(&self, id: &AssetId) -> Option<&AssetRevision> { self.revisions.get(id) }
-    pub fn iter(&self) -> impl Iterator<Item = (&AssetId, &T)> { self.assets.iter() }
+    pub fn get(&self, id: &AssetId) -> Option<&T> {
+        self.assets.get(id)
+    }
+    pub fn revision(&self, id: &AssetId) -> Option<&AssetRevision> {
+        self.revisions.get(id)
+    }
+    pub fn iter(&self) -> impl Iterator<Item = (&AssetId, &T)> {
+        self.assets.iter()
+    }
 }

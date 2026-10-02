@@ -27,7 +27,10 @@ impl IncidentJournal {
     pub async fn append(&self, incident: Incident) -> u64 {
         let mut sequence = self.next_sequence.write().await;
         *sequence = sequence.saturating_add(1);
-        let entry = JournalEntry { sequence: *sequence, incident };
+        let entry = JournalEntry {
+            sequence: *sequence,
+            incident,
+        };
 
         let mut entries = self.entries.write().await;
         if entries.len() == self.capacity {

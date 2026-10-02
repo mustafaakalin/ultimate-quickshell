@@ -1,6 +1,9 @@
-use std::{path::{Path, PathBuf}, sync::Arc};
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     net::{UnixListener, UnixStream},
@@ -8,7 +11,7 @@ use tokio::{
 use tracing::{info, warn};
 use wem0x01_core::{CapabilityRegistry, PolicyEngine, Principal, StateStore};
 use wem0x01_protocol::{
-    ClientKind, Command, EnvironmentSnapshot, IpcHello, IpcRequest, IpcResponse, IPC_MAX_FRAME,
+    ClientKind, Command, EnvironmentSnapshot, IPC_MAX_FRAME, IpcHello, IpcRequest, IpcResponse,
     PROTOCOL_VERSION,
 };
 
@@ -26,7 +29,12 @@ impl IpcServer {
         policy: Arc<PolicyEngine>,
         capabilities: Arc<CapabilityRegistry>,
     ) -> Self {
-        Self { path: path.into(), state, policy, capabilities }
+        Self {
+            path: path.into(),
+            state,
+            policy,
+            capabilities,
+        }
     }
 
     pub async fn run(self) -> anyhow::Result<()> {
@@ -78,7 +86,9 @@ async fn handle_client(
     }
 
     let hello_request: IpcRequest = serde_json::from_str(&line)?;
-    let hello = hello_request.hello.ok_or_else(|| anyhow::anyhow!("missing IPC hello"))?;
+    let hello = hello_request
+        .hello
+        .ok_or_else(|| anyhow::anyhow!("missing IPC hello"))?;
 
     authenticate_hello(&hello, &policy, &capabilities)?;
 
@@ -156,7 +166,9 @@ fn authenticate_hello(
         ClientKind::Ui | ClientKind::Cli => Principal::frontend(hello.client.clone()),
         ClientKind::Agent => Principal::agent(hello.client.clone()),
         ClientKind::Plugin => Principal::plugin(hello.client.clone(), [wem0x01_core::Effect::Read]),
-        ClientKind::Automation => Principal::plugin(hello.client.clone(), [wem0x01_core::Effect::Read]),
+        ClientKind::Automation => {
+            Principal::plugin(hello.client.clone(), [wem0x01_core::Effect::Read])
+        }
     };
     for capability in &hello.requested_capabilities {
         capabilities.authorize(policy, &principal, capability)?;

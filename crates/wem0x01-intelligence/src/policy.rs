@@ -1,7 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ContextDisposition { Allow, Redact, RequireApproval, Deny }
+pub enum ContextDisposition {
+    Allow,
+    Redact,
+    RequireApproval,
+    Deny,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AiPolicy {
