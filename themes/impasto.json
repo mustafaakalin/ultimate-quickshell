@@ -1,0 +1,16 @@
+{
+  "name": "impasto-night",
+  "background": "#120f14",
+  "surface": "#1d171f",
+  "surface2": "#2a202c",
+  "foreground": "#f6eef7",
+  "muted": "#bdaebf",
+  "accent": "#e0b7ff",
+  "accent_strong": "#c987ff",
+  "red": "#ffb4ab",
+  "yellow": "#f8d58a",
+  "green": "#a9e6c5",
+  "cyan": "#9edfff",
+  "blue": "#aebcff",
+  "magenta": "#edb4ff"
+}
