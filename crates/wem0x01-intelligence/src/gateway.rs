@@ -1,6 +1,6 @@
-use wem0x01_core::{CapabilityRegistry, PolicyEngine, Principal};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use wem0x01_core::{CapabilityRegistry, PolicyEngine, Principal};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolCall {
