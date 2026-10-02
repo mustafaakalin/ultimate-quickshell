@@ -122,7 +122,7 @@ async fn handle_client(
                 id: request.id,
                 ok: true,
                 error: None,
-                snapshot: Some(snapshot_to_protocol(&state.snapshot().await)),
+                snapshot: Some(snapshot_to_protocol(&*state.snapshot().await)),
             },
             Some(Command::Agent(_)) => IpcResponse {
                 id: request.id,
