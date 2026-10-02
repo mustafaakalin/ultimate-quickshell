@@ -78,6 +78,10 @@ impl CheckpointStore {
         self.checkpoints.remove(id)
     }
 
+    pub fn find_by_transaction(&self, transaction_id: &str) -> Option<&Checkpoint> {
+        self.checkpoints.values().find(|cp| cp.transaction_id == transaction_id)
+    }
+
     pub fn len(&self) -> usize {
         self.checkpoints.len()
     }
