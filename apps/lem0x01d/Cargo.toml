@@ -1,0 +1,16 @@
+[package]
+name = "lem0x01d"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+lem0x01-core = { path = "../../crates/lem0x01-core" }
+lem0x01-compositor = { path = "../../crates/lem0x01-compositor" }
+lem0x01-platform = { path = "../../crates/lem0x01-platform" }
+lem0x01-protocol = { path = "../../crates/lem0x01-protocol" }
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
