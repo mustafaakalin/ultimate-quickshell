@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use tokio::{io::{AsyncBufReadExt, AsyncWriteExt, BufReader}, net::UnixStream};
-use wem0x01_protocol::{IpcHello, IpcRequest, IpcResponse, IPC_MAX_FRAME, PROTOCOL_VERSION};
+use wem0x01_protocol::{ClientKind, IpcHello, IpcRequest, IpcResponse, IPC_MAX_FRAME, PROTOCOL_VERSION};
 use wem0x01_protocol::Command;
 
 #[derive(Parser)]
@@ -31,7 +31,7 @@ async fn main() -> anyhow::Result<()> {
     let runtime_dir = std::env::var_os("XDG_RUNTIME_DIR").map(PathBuf::from).ok_or_else(|| anyhow::anyhow!("XDG_RUNTIME_DIR is required"))?;
     let stream = UnixStream::connect(runtime_dir.join("wem0x01.sock")).await?;
     let mut io = BufReader::new(stream);
-    send(&mut io, IpcRequest { id: 1, hello: Some(IpcHello { protocol: PROTOCOL_VERSION, client: "wem0x01ctl".into(), requested_capabilities: vec!["environment.snapshot".into(), "environment.control".into()] }), command: None }).await?;
+    send(&mut io, IpcRequest { id: 1, hello: Some(IpcHello { protocol: PROTOCOL_VERSION, client: "wem0x01ctl".into(), kind: Some(ClientKind::Cli), requested_capabilities: vec!["environment.snapshot".into(), "environment.control".into()] }), command: None }).await?;
     let handshake = read_response(&mut io).await?;
     if !handshake.ok { anyhow::bail!(handshake.error.unwrap_or_else(|| "IPC handshake failed".into())); }
     send(&mut io, IpcRequest { id: 2, hello: None, command: Some(command) }).await?;
