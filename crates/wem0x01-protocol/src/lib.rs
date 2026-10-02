@@ -78,3 +78,27 @@ pub struct TransactionPlan {
     pub requires_approval: bool,
 }
 
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IpcHello {
+    pub protocol: u16,
+    pub client: String,
+    pub requested_capabilities: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IpcRequest {
+    pub id: u64,
+    pub hello: Option<IpcHello>,
+    pub command: Option<Command>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IpcResponse {
+    pub id: u64,
+    pub ok: bool,
+    pub error: Option<String>,
+    pub snapshot: Option<EnvironmentSnapshot>,
+}
+
+pub const IPC_MAX_FRAME: usize = 64 * 1024;
