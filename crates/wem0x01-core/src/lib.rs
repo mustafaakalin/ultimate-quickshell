@@ -1,6 +1,7 @@
 //! Security-first event/state core.
 
 use async_trait::async_trait;
+use sha2::{Digest, Sha256};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, sync::Arc};
 use tokio::sync::{RwLock, broadcast};
@@ -35,6 +36,14 @@ pub struct EnvironmentState {
     pub session_id: String,
     pub profile: String,
     pub capabilities: Vec<Capability>,
+}
+
+impl EnvironmentState {
+    pub fn digest(&self) -> Result<String, serde_json::Error> {
+        let encoded = serde_json::to_vec(self)?;
+        let digest = Sha256::digest(encoded);
+        Ok(format!("{digest:x}"))
+    }
 }
 
 #[derive(Debug, Clone)]
