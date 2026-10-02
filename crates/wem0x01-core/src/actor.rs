@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use std::{future::Future, time::Duration};
+use std::time::Duration;
 use tokio::{sync::watch, task::JoinHandle};
 use tracing::{error, warn};
 
