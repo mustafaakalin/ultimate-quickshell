@@ -43,7 +43,7 @@ async fn main() -> anyhow::Result<()> {
 
 async fn send(io: &mut BufReader<UnixStream>, request: IpcRequest) -> anyhow::Result<()> {
     let mut bytes = serde_json::to_vec(&request)?;
-    bytes.push(b'\\n');
+    bytes.push(b'\n');
     if bytes.len() > IPC_MAX_FRAME { anyhow::bail!("IPC request exceeds maximum frame size"); }
     io.get_mut().write_all(&bytes).await?;
     Ok(())
