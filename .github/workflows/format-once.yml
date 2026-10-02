@@ -20,8 +20,22 @@ jobs:
         with:
           toolchain: 1.99.0
           components: rustfmt
-      - run: cargo fmt --all
+      - name: Run rustfmt and capture diagnostics
+        run: |
+          set +e
+          cargo fmt --all > /tmp/rustfmt.log 2>&1
+          status=$?
+          cat /tmp/rustfmt.log
+          echo "RUSTFMT_STATUS=$status" >> "$GITHUB_ENV"
+          exit 0
+      - name: Upload rustfmt diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-diagnostics
+          path: /tmp/rustfmt.log
       - name: Commit formatting changes
+        if: env.RUSTFMT_STATUS == '0'
         run: |
           if git diff --quiet; then
             echo "already formatted"
