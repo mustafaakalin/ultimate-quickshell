@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible problem
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Ultimate Quickshell version and Quickshell version.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Hyprland, distro, GPU, Qt/Quickshell versions, and relevant services.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Exact steps to reproduce the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant logs or error output. Remove secrets first.
