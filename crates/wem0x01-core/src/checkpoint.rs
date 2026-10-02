@@ -87,6 +87,10 @@ impl CheckpointStore {
     pub fn len(&self) -> usize {
         self.checkpoints.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.checkpoints.is_empty()
+    }
 }
 
 #[cfg(test)]
