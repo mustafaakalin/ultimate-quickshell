@@ -1,0 +1,37 @@
+name: One-time clippy diagnostics
+
+on:
+  push:
+    branches: ["dev/v8"]
+
+permissions:
+  contents: write
+
+jobs:
+  clippy:
+    if: github.actor == 'mustafaakalin'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev/v8
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.99.0
+          components: clippy
+      - run: |
+          set +e
+          cargo clippy --workspace --all-targets -- -D warnings > /tmp/clippy.log 2>&1
+          cat /tmp/clippy.log
+          exit 0
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clippy-context
+          path: /tmp/clippy.log
+      - run: |
+          git rm .github/workflows/clippy-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "ci: remove temporary clippy workflow"
+          git push origin HEAD:dev/v8
