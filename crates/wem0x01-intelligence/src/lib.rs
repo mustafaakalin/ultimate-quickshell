@@ -16,6 +16,7 @@ pub mod orchestrator;
 pub mod operation;
 pub mod evaluation;
 pub mod execution;
+pub mod compositor_adapter;
 pub mod firewall;
 pub mod policy;
 pub mod trace;
@@ -36,6 +37,7 @@ pub use orchestrator::{AgentOrchestrator, AgentRun, ApprovalScope, Delegation, O
 pub use operation::{Idempotency, OperationEffect, OperationRegistry, OperationSpec, OperationSpecError};
 pub use evaluation::{EvaluationReport, EvaluationSuite};
 pub use execution::{ActionAdapter, ExecutionBroker, ExecutionError};
+pub use compositor_adapter::{CompositorAdapter, WorkspaceFocus};
 pub use test_adapter::NoopAdapter;
 pub use firewall::{ContextFirewall, ContextItem, SanitizedContext, TrustLabel};
 pub use policy::{AiPolicy, ContextDisposition};
