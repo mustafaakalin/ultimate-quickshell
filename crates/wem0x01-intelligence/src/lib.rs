@@ -23,6 +23,7 @@ pub mod registry;
 pub mod skill;
 pub mod spec;
 pub mod tool;
+pub mod test_adapter;
 
 pub use agent::{AgentBudget, AgentDescriptor, AgentKind, AgentRole, AgentRuntime};
 pub use graph::{AssetKind, GraphEdge, GraphNode, GovernanceGraph, Relation};
@@ -33,6 +34,7 @@ pub use mcp::{McpServerDescriptor, McpTransport};
 pub use orchestrator::{AgentOrchestrator, AgentRun, ApprovalScope, Delegation, OrchestratorError, RunState};
 pub use evaluation::{EvaluationReport, EvaluationSuite};
 pub use execution::{ActionAdapter, ExecutionBroker, ExecutionError};
+pub use test_adapter::NoopAdapter;
 pub use firewall::{ContextFirewall, ContextItem, SanitizedContext, TrustLabel};
 pub use policy::{AiPolicy, ContextDisposition};
 pub use trace::{Trace, TraceEvent};
