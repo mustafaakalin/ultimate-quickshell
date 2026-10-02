@@ -5,6 +5,8 @@ edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 [dependencies]
+anyhow.workspace = true
+tokio.workspace = true
 clap.workspace = true
 wem0x01-protocol = { path = "../../crates/wem0x01-protocol" }
 serde_json.workspace = true
