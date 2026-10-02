@@ -1,12 +1,12 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/lem0x01-core",
-  "crates/lem0x01-protocol",
-  "crates/lem0x01-platform",
-  "crates/lem0x01-compositor",
-  "apps/lem0x01d",
-  "apps/lem0x01ctl",
+  "crates/wem0x01-core",
+  "crates/wem0x01-protocol",
+  "crates/wem0x01-platform",
+  "crates/wem0x01-compositor",
+  "apps/wem0x01d",
+  "apps/wem0x01ctl",
 ]
 
 [workspace.package]
