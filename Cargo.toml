@@ -5,6 +5,7 @@ members = [
   "crates/wem0x01-protocol",
   "crates/wem0x01-platform",
   "crates/wem0x01-compositor",
+  "crates/wem0x01-intelligence",
   "apps/wem0x01d",
   "apps/wem0x01ctl",
 ]
