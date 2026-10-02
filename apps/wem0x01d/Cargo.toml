@@ -1,0 +1,15 @@
+[package]
+name = "wem0x01d"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+[dependencies]
+anyhow.workspace = true
+wem0x01-core = { path = "../../crates/wem0x01-core" }
+wem0x01-compositor = { path = "../../crates/wem0x01-compositor" }
+wem0x01-platform = { path = "../../crates/wem0x01-platform" }
+wem0x01-protocol = { path = "../../crates/wem0x01-protocol" }
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
