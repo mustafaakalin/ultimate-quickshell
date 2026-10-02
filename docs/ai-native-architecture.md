@@ -477,3 +477,48 @@ For wem0x01, these become local-first primitives rather than cloud-only services
 AI is an extension of the control plane.
 
 The control plane is never an extension of AI.
+
+## Runtime security invariants
+
+The implementation must preserve these invariants:
+
+- AI context is never treated as executable authority.
+- Untrusted memory cannot grant capabilities.
+- Tool input/output is bounded.
+- Tool effects are declared before execution.
+- Remote/cloud agents are denied sensitive context by default.
+- Subagents operate under explicit bounded delegation.
+- Mutation requires a transaction.
+- Approval is invalidated if the transaction scope changes.
+- Every transaction has verification before commit.
+- Failed reversible mutations must be rollback-capable.
+- External plugins are process-isolated.
+- Same-user IPC identity is still a bootstrap trust boundary until scoped credentials are implemented.
+
+## Performance invariants
+
+The AI plane must never block the desktop state hot path.
+
+- state reduction remains synchronous/deterministic where possible
+- AI work is asynchronous
+- event queues are bounded
+- tool calls have timeouts
+- model calls have budgets
+- memory retrieval has limits
+- plugin crashes are isolated
+- expensive AI operations consume dedicated worker capacity
+
+## Next runtime layers
+
+1. Tool execution broker
+2. MCP runtime
+3. Agent orchestrator
+4. Subagent supervisor
+5. encrypted persistent memory
+6. local model adapter
+7. explicit cloud egress adapter
+8. spec validator
+9. skill loader
+10. approval service
+11. evaluation runner
+12. OpenTelemetry exporter
